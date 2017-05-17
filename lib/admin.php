@@ -8,11 +8,16 @@
 add_action( 'admin_enqueue_scripts', 'mai_admin_enqueue_scripts' );
 function mai_admin_enqueue_scripts() {
 
-	// Add an editor stylesheet
-	add_editor_style( '/assets/css/editor-style.css' );
-
 	// Use minified files if script debug is not being used
 	$suffix = mai_get_suffix();
+
+	// Add an editor stylesheet
+	add_editor_style( '/assets/css/editor-style.css' );
+	add_editor_style( "/assets/css/flexington{$suffix}.css" );
+
+
+	// Flexington for Shortcake
+	// wp_enqueue_style( 'flexington', MAITHEME_ENGINE_PLUGIN_PLUGIN_URL . "assets/css/flexington{$suffix}.css", array(), '2.3.5' );
 
 	// Register for later
 	wp_enqueue_style( 'mai-cmb2', MAITHEME_ENGINE_PLUGIN_PLUGIN_URL . "/assets/css/mai-cmb2{$suffix}.css", array(), CHILD_THEME_VERSION );
