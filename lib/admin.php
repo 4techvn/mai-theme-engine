@@ -11,12 +11,28 @@ function mai_admin_enqueue_scripts() {
 	// Use minified files if script debug is not being used
 	$suffix = mai_get_suffix();
 
-	// Add an editor stylesheet
-	add_editor_style( '/assets/css/mai-editor{$suffix}.css' );
-
 	// Register for later
 	wp_enqueue_style( 'mai-admin', MAI_PRO_ENGINE_PLUGIN_URL . "/assets/css/mai-admin{$suffix}.css", array(), MAI_PRO_ENGINE_VERSION );
 	wp_enqueue_script( 'mai-admin', MAI_PRO_ENGINE_PLUGIN_URL . "/assets/js/mai-admin{$suffix}.js", array( 'jquery' ), MAI_PRO_ENGINE_VERSION, true );
+}
+
+/**
+ * Add editor stylesheet.
+ * Cannot use add_editor_style() via a plugin, so we need to use mce_css filter.
+ *
+ * @return  Comma-separated string of CSS urls
+ */
+add_filter( 'mce_css', 'mai_add_editor_style' );
+function mai_add_editor_style( $mce_css ) {
+
+	// Use minified files if script debug is not being used
+	$suffix = mai_get_suffix();
+
+	if ( ! empty( $mce_css ) ) {
+		$mce_css .= ',';
+	}
+	$mce_css .= MAI_PRO_ENGINE_PLUGIN_URL . "assets/css/mai-editor{$suffix}.css";
+	return $mce_css;
 }
 
 /**

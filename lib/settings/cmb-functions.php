@@ -9,7 +9,8 @@ if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 	 *
 	 * This shouldn't affect anyone else, sorry for extra code just for me :P
 	 */
-	add_filter( 'cmb2_meta_box_url', 'mai_update_cmb2_meta_box_url' );
+	add_filter( 'cmb2_meta_box_url', 			'mai_update_cmb2_meta_box_url' );
+    add_filter( 'shortcode_button_assets_url',  'mai_update_cmb2_meta_box_url' );
 	function mai_update_cmb2_meta_box_url( $url ) {
 	    return str_replace( '/Users/JiveDig/Plugins/mai-pro-engine/', MAI_PRO_ENGINE_PLUGIN_URL, $url );
 	}

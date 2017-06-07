@@ -138,6 +138,7 @@ final class Mai_Pro_Engine {
 
         // Includes (Vendor)
         require_once MAI_PRO_ENGINE_INCLUDES_DIR . 'CMB2/init.php';
+        require_once MAI_PRO_ENGINE_INCLUDES_DIR . 'Shortcode_Button/shortcode-button.php';
         require_once MAI_PRO_ENGINE_INCLUDES_DIR . 'plugin-update-checker/plugin-update-checker.php';
 
         // Setup the updater
@@ -304,7 +305,301 @@ final class Mai_Pro_Engine {
 
         }, 8 );
 
+        // This hook, with this priority ensures the Shortcode_Button library is loaded.
+        // add_action( 'shortcode_button_load', 'mai_col_shortcode_button', ( SHORTCODE_BUTTONS_LOADED + 1 ) );
+        function mai_col_shortcode_button() {
+
+            $button_slug = 'col';
+
+            // Set up the button data that will be passed to the javascript files
+            $js_button_data = array(
+                'qt_button_text' => __( 'Column', 'mai-pro-engine' ),
+                'button_tooltip' => __( 'Column', 'mai-pro-engine' ),
+                'icon'           => 'dashicons-grid-view',
+                // Optional parameters
+                'include_close'  => true,  // Will wrap your selection in the shortcode
+                'mceView'        => true,  // Live preview of shortcode in editor. YMMV.
+                // Use your own textdomain
+                'l10ncancel'     => __( 'Cancel', 'mai-pro-engine' ),
+                'l10ninsert'     => __( 'Insert Column', 'mai-pro-engine' ),
+            );
+
+            // Optional additional parameters
+            $additional_args = array(
+                'cmb_metabox_config' => 'col_shortcode_button_config',
+            );
+
+            // $button = new Shortcode_Button( $button_slug, $js_button_data );
+            $button = new Shortcode_Button( $button_slug, $js_button_data, $additional_args );
+
+        }
+
+        // This hook, with this priority ensures the Shortcode_Button library is loaded.
+        // add_action( 'shortcode_button_load', 'mai_columns_shortcode_button', ( SHORTCODE_BUTTONS_LOADED + 1 ) );
+        function mai_columns_shortcode_button() {
+
+            $button_slug = 'columns';
+
+            // Set up the button data that will be passed to the javascript files
+            $js_button_data = array(
+                'qt_button_text' => __( 'Columns Wrap', 'mai-pro-engine' ),
+                'button_tooltip' => __( 'Columns Wrap', 'mai-pro-engine' ),
+                'icon'           => 'dashicons-grid-view',
+                // Optional parameters
+                'include_close'  => true,  // Will wrap your selection in the shortcode
+                'mceView'        => false, // Live preview of shortcode in editor. YMMV.
+                // Use your own textdomain
+                'l10ncancel'     => __( 'Cancel', 'mai-pro-engine' ),
+                'l10ninsert'     => __( 'Insert Columns Wrap', 'mai-pro-engine' ),
+            );
+
+            // Optional additional parameters
+            $additional_args = array(
+                'cmb_metabox_config' => 'columns_shortcode_button_config',
+            );
+
+            // $button = new Shortcode_Button( $button_slug, $js_button_data );
+            $button = new Shortcode_Button( $button_slug, $js_button_data, $additional_args );
+
+        }
+
+        // This hook, with this priority ensures the Shortcode_Button library is loaded.
+        add_action( 'shortcode_button_load', 'mai_grid_shortcode_button', ( SHORTCODE_BUTTONS_LOADED + 1 ) );
+        function mai_grid_shortcode_button() {
+
+            $button_slug = 'grid';
+
+            // Set up the button data that will be passed to the javascript files
+            $js_button_data = array(
+                'qt_button_text' => __( 'Grid Content', 'mai-pro-engine' ),
+                'button_tooltip' => __( 'Grid Content', 'mai-pro-engine' ),
+                'icon'           => 'dashicons-grid-view',
+                // Optional parameters
+                'include_close'  => false, // Will wrap your selection in the shortcode
+                'mceView'        => true,  // Live preview of shortcode in editor. YMMV.
+                // Use your own textdomain
+                'l10ncancel'     => __( 'Cancel', 'mai-pro-engine' ),
+                'l10ninsert'     => __( 'Insert Grid Content', 'mai-pro-engine' ),
+            );
+
+            // Optional additional parameters
+            $additional_args = array(
+                'cmb_metabox_config' => 'grid_shortcode_button_config',
+            );
+
+            // $button = new Shortcode_Button( $button_slug, $js_button_data );
+            $button = new Shortcode_Button( $button_slug, $js_button_data, $additional_args );
+
+        }
+
+        function col_shortcode_button_config( $button_data ) {
+
+            return array(
+                'id'     => 'shortcode_'. $button_data['slug'],
+                'fields' => array(
+                    array(
+                        'name'    => __( 'Column Alignment', 'mai-pro-engine' ),
+                        // 'desc'    => __( 'Horizontally and Vertically align the columns.', 'mai-pro-engine' ),
+                        'id'      => 'align',
+                        'type'    => 'select',
+                        'options' => array(
+                            'top, left'      => __( 'Top/Left', 'mai-pro-engine' ),
+                            'top, center'    => __( 'Top/Center', 'mai-pro-engine' ),
+                            'top, right'     => __( 'Top/Right', 'mai-pro-engine' ),
+                            'middle, left'   => __( 'Middle/Left', 'mai-pro-engine' ),
+                            'middle, center' => __( 'Middle/Center', 'mai-pro-engine' ),
+                            'middle, right'  => __( 'Middle/Right', 'mai-pro-engine' ),
+                            'bottom, left'   => __( 'Bottom/Left', 'mai-pro-engine' ),
+                            'bottom, center' => __( 'Bottom/Center', 'mai-pro-engine' ),
+                            'bottom, right'  => __( 'Bottom/Right', 'mai-pro-engine' ),
+                        ),
+                    ),
+                    array(
+                        'name'    => __( 'Background Image', 'mai-pro-engine' ),
+                        'id'      => 'image',
+                        'type'    => 'file',
+                        'options' => array(
+                            'url' => false,
+                        ),
+                    ),
+                ),
+                // keep this w/ a key of 'options-page' and use the button slug as the value
+                'show_on' => array( 'key' => 'options-page', 'value' => $button_data['slug'] ),
+            );
+
+        }
+
+        function columns_shortcode_button_config( $button_data ) {
+
+            return array(
+                'id'     => 'shortcode_'. $button_data['slug'],
+                'fields' => array(
+                    array(
+                        'name'    => __( 'Gutter', 'mai-pro-engine' ),
+                        'id'      => 'show',
+                        'type'    => 'select',
+                        'default' => 30,
+                        'options' => array(
+                            0  => __( 'None', 'mai-pro-engine' ),
+                            5  => '5px',
+                            10 => '10px',
+                            20 => '20px',
+                            30 => '30px',
+                            40 => '40px',
+                            50 => '50px',
+                        ),
+                    ),
+                    array(
+                        'name'    => __( 'Column Alignment', 'mai-pro-engine' ),
+                        // 'desc'    => __( 'Horizontally and Vertically align the columns.', 'mai-pro-engine' ),
+                        'id'      => 'align',
+                        'type'    => 'select',
+                        'options' => array(
+                            'top, left'      => __( 'Top/Left', 'mai-pro-engine' ),
+                            'top, center'    => __( 'Top/Center', 'mai-pro-engine' ),
+                            'top, right'     => __( 'Top/Right', 'mai-pro-engine' ),
+                            'middle, left'   => __( 'Middle/Left', 'mai-pro-engine' ),
+                            'middle, center' => __( 'Middle/Center', 'mai-pro-engine' ),
+                            'middle, right'  => __( 'Middle/Right', 'mai-pro-engine' ),
+                            'bottom, left'   => __( 'Bottom/Left', 'mai-pro-engine' ),
+                            'bottom, center' => __( 'Bottom/Center', 'mai-pro-engine' ),
+                            'bottom, right'  => __( 'Bottom/Right', 'mai-pro-engine' ),
+                        ),
+                    ),
+                ),
+                // keep this w/ a key of 'options-page' and use the button slug as the value
+                'show_on' => array( 'key' => 'options-page', 'value' => $button_data['slug'] ),
+            );
+
+        }
+
+        /**
+         * Return CMB2 config array
+         *
+         * @param   array  $button_data  Array of button data
+         *
+         * @return  array                CMB2 config array
+         */
+        function grid_shortcode_button_config( $button_data ) {
+
+            // Post Types
+            $post_types = get_post_types( array( 'public' => true, 'publicly_queryable' => true ), 'objects' );
+            $post_type_options = array();
+            foreach ( $post_types as $post_type ) {
+                $post_type_options[$post_type->name] = $post_type->label;
+            }
+
+            // Taxos
+            $taxos = get_taxonomies( array( 'public' => true ), 'objects' );
+            $taxo_options = array();
+            foreach ( $taxos as $taxo ) {
+                $taxo_options[$taxo->name] = $taxo->label;
+            }
+
+            return array(
+                'id'     => 'shortcode_'. $button_data['slug'],
+                'fields' => array(
+                    array(
+                        'name'    => __( 'Content', 'mai-pro-engine' ),
+                        'default' => 'post',
+                        'id'      => 'content',
+                        'type'    => 'select',
+                        'options' => array_merge( $post_type_options, $taxo_options ),
+                    ),
+                    array(
+                        'name'              => __( 'Show', 'mai-pro-engine' ),
+                        'id'                => 'show',
+                        'type'              => 'multicheck_inline',
+                        'select_all_button' => false,
+                        'options'           => array(
+                            'title'     => __( 'Title', 'mai-pro-engine' ),
+                            'image'     => __( 'Image', 'mai-pro-engine' ),
+                            'excerpt'   => __( 'Excerpt', 'mai-pro-engine' ),
+                            'content'   => __( 'Content', 'mai-pro-engine' ),
+                            'more_link' => __( 'More Link', 'mai-pro-engine' ),
+                        ),
+                    ),
+                    array(
+                        'name'    => __( 'Content Alignment', 'mai-pro-engine' ),
+                        // 'desc'    => __( 'Horizontally and Vertically align the columns.', 'mai-pro-engine' ),
+                        'id'      => 'align',
+                        'type'    => 'select',
+                        'options' => array(
+                            'top, left'      => __( 'Top/Left', 'mai-pro-engine' ),
+                            'top, center'    => __( 'Top/Center', 'mai-pro-engine' ),
+                            'top, right'     => __( 'Top/Right', 'mai-pro-engine' ),
+                            'middle, left'   => __( 'Middle/Left', 'mai-pro-engine' ),
+                            'middle, center' => __( 'Middle/Center', 'mai-pro-engine' ),
+                            'middle, right'  => __( 'Middle/Right', 'mai-pro-engine' ),
+                            'bottom, left'   => __( 'Bottom/Left', 'mai-pro-engine' ),
+                            'bottom, center' => __( 'Bottom/Center', 'mai-pro-engine' ),
+                            'bottom, right'  => __( 'Bottom/Right', 'mai-pro-engine' ),
+                        ),
+                    ),
+                    array(
+                        'name'    => __( 'Image Location', 'mai-pro-engine' ),
+                        'id'      => 'image_location',
+                        'type'    => 'select',
+                        'options' => array(
+                            'before_entry' => __( 'Before Entry', 'mai-pro-engine' ),
+                            'before_title' => __( 'Before Title', 'mai-pro-engine' ),
+                            'after_title'  => __( 'After Title', 'mai-pro-engine' ),
+                            'bg'           => __( 'Background', 'mai-pro-engine' ),
+                        ),
+                    ),
+                    array(
+                        'name'       => __( 'Columns', 'mai-pro-engine' ),
+                        'desc'       => __( 'The number of columns', 'mai-pro-engine' ),
+                        'default'    => 3,
+                        'id'         => 'columns',
+                        'type'       => 'text_small',
+                        'attributes' => array(
+                            'type'    => 'number',
+                            'pattern' => '\d*',
+                        ),
+                    ),
+                    array(
+                        'name'       => __( 'Number', 'mai-pro-engine' ),
+                        'desc'       => __( 'The number of entries', 'mai-pro-engine' ),
+                        'default'    => 12,
+                        'id'         => 'number',
+                        'type'       => 'text_small',
+                        'attributes' => array(
+                            'type'    => 'number',
+                            'pattern' => '\d*',
+                        ),
+                    ),
+                    array(
+                        'name' => __( 'Slider', 'mai-pro-engine' ),
+                        'desc' => __( 'Display as a slider', 'mai-pro-engine' ),
+                        'id'   => 'slider',
+                        'type' => 'checkbox',
+                    ),
+                    // array(
+                    //     'name'              => __( 'Slider', 'mai-pro-engine' ),
+                    //     // 'desc'              => __( 'Display as a slider', 'mai-pro-engine' ),
+                    //     'id'                => 'slider',
+                    //     'type'              => 'multicheck_inline',
+                    //     'select_all_button' => false,
+                    //     'options'           => array(
+                    //         true => __( 'Display as a slider', 'mai-pro-engine' ),
+                    //     ),
+                    // ),
+                ),
+                // keep this w/ a key of 'options-page' and use the button slug as the value
+                'show_on' => array( 'key' => 'options-page', 'value' => $button_data['slug'] ),
+            );
+
+
+        }
+
+        // Filter the rendered shortcode and show a simple block
+        add_filter( 'shortcode_button_parse_mce_view_before_send_grid', function( $send ) {
+            return '<div class="grid-shortcode" style="background-color:#f7f7f7;text-align:center;padding:24px;"><span class="dashicons dashicons-grid-view" style="display:inline-block;width:auto;height:auto;vertical-align:middle;font-size:36px;"></span> <strong>Grid Content</strong></div>';
+        });
+
     }
+
 
     function deactivate_plugin() {
         deactivate_plugins( plugin_basename( __FILE__ ) );
