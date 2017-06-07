@@ -315,7 +315,7 @@ final class Mai_Pro_Engine {
             $js_button_data = array(
                 'qt_button_text' => __( 'Column', 'mai-pro-engine' ),
                 'button_tooltip' => __( 'Column', 'mai-pro-engine' ),
-                'icon'           => 'dashicons-grid-view',
+                'icon'           => 'dashicons-editor-insertmore',
                 // Optional parameters
                 'include_close'  => true,  // Will wrap your selection in the shortcode
                 'mceView'        => true,  // Live preview of shortcode in editor. YMMV.
@@ -344,7 +344,7 @@ final class Mai_Pro_Engine {
             $js_button_data = array(
                 'qt_button_text' => __( 'Columns Wrap', 'mai-pro-engine' ),
                 'button_tooltip' => __( 'Columns Wrap', 'mai-pro-engine' ),
-                'icon'           => 'dashicons-grid-view',
+                'icon'           => 'dashicons-align-center',
                 // Optional parameters
                 'include_close'  => true,  // Will wrap your selection in the shortcode
                 'mceView'        => false, // Live preview of shortcode in editor. YMMV.
@@ -367,28 +367,54 @@ final class Mai_Pro_Engine {
         add_action( 'shortcode_button_load', 'mai_grid_shortcode_button', ( SHORTCODE_BUTTONS_LOADED + 1 ) );
         function mai_grid_shortcode_button() {
 
-            $button_slug = 'grid';
+            // $button_slug = 'grid';
+
+            // // Set up the button data that will be passed to the javascript files
+            // $js_button_data = array(
+            //     'qt_button_text' => __( 'Grid Content', 'mai-pro-engine' ),
+            //     'button_tooltip' => __( 'Grid Content', 'mai-pro-engine' ),
+            //     'icon'           => 'dashicons-grid-view',
+            //     // Optional parameters
+            //     'include_close'  => false, // Will wrap your selection in the shortcode
+            //     'mceView'        => true,  // Live preview of shortcode in editor. YMMV.
+            //     // Use your own textdomain
+            //     'l10ncancel'     => __( 'Cancel', 'mai-pro-engine' ),
+            //     'l10ninsert'     => __( 'Insert Grid Content', 'mai-pro-engine' ),
+            // );
+
+            // // Optional additional parameters
+            // $additional_args = array(
+            //     'cmb_metabox_config' => 'grid_shortcode_button_config',
+            // );
+
+            // // $button = new Shortcode_Button( $button_slug, $js_button_data );
+            // $button = new Shortcode_Button( $button_slug, $js_button_data, $additional_args );
+
+
+
+            $button_slug = 'columns';
 
             // Set up the button data that will be passed to the javascript files
             $js_button_data = array(
-                'qt_button_text' => __( 'Grid Content', 'mai-pro-engine' ),
-                'button_tooltip' => __( 'Grid Content', 'mai-pro-engine' ),
-                'icon'           => 'dashicons-grid-view',
+                'qt_button_text' => __( 'Columns Wrap', 'mai-pro-engine' ),
+                'button_tooltip' => __( 'Columns Wrap', 'mai-pro-engine' ),
+                'icon'           => 'dashicons-align-center',
                 // Optional parameters
-                'include_close'  => false, // Will wrap your selection in the shortcode
-                'mceView'        => true,  // Live preview of shortcode in editor. YMMV.
+                'include_close'  => true,  // Will wrap your selection in the shortcode
+                'mceView'        => true, // Live preview of shortcode in editor. YMMV.
                 // Use your own textdomain
                 'l10ncancel'     => __( 'Cancel', 'mai-pro-engine' ),
-                'l10ninsert'     => __( 'Insert Grid Content', 'mai-pro-engine' ),
+                'l10ninsert'     => __( 'Insert Columns Wrap', 'mai-pro-engine' ),
             );
 
             // Optional additional parameters
             $additional_args = array(
-                'cmb_metabox_config' => 'grid_shortcode_button_config',
+                'cmb_metabox_config' => 'columns_shortcode_button_config',
             );
 
             // $button = new Shortcode_Button( $button_slug, $js_button_data );
             $button = new Shortcode_Button( $button_slug, $js_button_data, $additional_args );
+
 
         }
 
@@ -397,23 +423,23 @@ final class Mai_Pro_Engine {
             return array(
                 'id'     => 'shortcode_'. $button_data['slug'],
                 'fields' => array(
-                    array(
-                        'name'    => __( 'Column Alignment', 'mai-pro-engine' ),
-                        // 'desc'    => __( 'Horizontally and Vertically align the columns.', 'mai-pro-engine' ),
-                        'id'      => 'align',
-                        'type'    => 'select',
-                        'options' => array(
-                            'top, left'      => __( 'Top/Left', 'mai-pro-engine' ),
-                            'top, center'    => __( 'Top/Center', 'mai-pro-engine' ),
-                            'top, right'     => __( 'Top/Right', 'mai-pro-engine' ),
-                            'middle, left'   => __( 'Middle/Left', 'mai-pro-engine' ),
-                            'middle, center' => __( 'Middle/Center', 'mai-pro-engine' ),
-                            'middle, right'  => __( 'Middle/Right', 'mai-pro-engine' ),
-                            'bottom, left'   => __( 'Bottom/Left', 'mai-pro-engine' ),
-                            'bottom, center' => __( 'Bottom/Center', 'mai-pro-engine' ),
-                            'bottom, right'  => __( 'Bottom/Right', 'mai-pro-engine' ),
-                        ),
-                    ),
+                    // array(
+                    //     'name'    => __( 'Content Alignment', 'mai-pro-engine' ),
+                    //     'desc'    => __( 'Horizontally/Vertically align the columns and content.', 'mai-pro-engine' ),
+                    //     'id'      => 'align',
+                    //     'type'    => 'select',
+                    //     'options' => array(
+                    //         'left, top'      => __( 'Left/Top', 'mai-pro-engine' ),
+                    //         'center, top'    => __( 'Center/Top', 'mai-pro-engine' ),
+                    //         'right, top'     => __( 'Right/Top', 'mai-pro-engine' ),
+                    //         'left, middle'   => __( 'Left/Middle', 'mai-pro-engine' ),
+                    //         'center, middle' => __( 'Center/Middle', 'mai-pro-engine' ),
+                    //         'right, middle'  => __( 'Right/Middle', 'mai-pro-engine' ),
+                    //         'left, bottom'   => __( 'Left/Bottom', 'mai-pro-engine' ),
+                    //         'center, bottom' => __( 'Center/Bottom', 'mai-pro-engine' ),
+                    //         'right, bottom'  => __( 'Right/Bottom', 'mai-pro-engine' ),
+                    //     ),
+                    // ),
                     array(
                         'name'    => __( 'Background Image', 'mai-pro-engine' ),
                         'id'      => 'image',
@@ -436,7 +462,7 @@ final class Mai_Pro_Engine {
                 'fields' => array(
                     array(
                         'name'    => __( 'Gutter', 'mai-pro-engine' ),
-                        'id'      => 'show',
+                        'id'      => 'gutter',
                         'type'    => 'select',
                         'default' => 30,
                         'options' => array(
@@ -449,23 +475,23 @@ final class Mai_Pro_Engine {
                             50 => '50px',
                         ),
                     ),
-                    array(
-                        'name'    => __( 'Column Alignment', 'mai-pro-engine' ),
-                        // 'desc'    => __( 'Horizontally and Vertically align the columns.', 'mai-pro-engine' ),
-                        'id'      => 'align',
-                        'type'    => 'select',
-                        'options' => array(
-                            'top, left'      => __( 'Top/Left', 'mai-pro-engine' ),
-                            'top, center'    => __( 'Top/Center', 'mai-pro-engine' ),
-                            'top, right'     => __( 'Top/Right', 'mai-pro-engine' ),
-                            'middle, left'   => __( 'Middle/Left', 'mai-pro-engine' ),
-                            'middle, center' => __( 'Middle/Center', 'mai-pro-engine' ),
-                            'middle, right'  => __( 'Middle/Right', 'mai-pro-engine' ),
-                            'bottom, left'   => __( 'Bottom/Left', 'mai-pro-engine' ),
-                            'bottom, center' => __( 'Bottom/Center', 'mai-pro-engine' ),
-                            'bottom, right'  => __( 'Bottom/Right', 'mai-pro-engine' ),
-                        ),
-                    ),
+                    // array(
+                    //     'name'    => __( 'Content Alignment', 'mai-pro-engine' ),
+                    //     'desc'    => __( 'Horizontally/Vertically align the columns and content.', 'mai-pro-engine' ),
+                    //     'id'      => 'align',
+                    //     'type'    => 'select',
+                    //     'options' => array(
+                    //         'left, top'      => __( 'Left/Top', 'mai-pro-engine' ),
+                    //         'center, top'    => __( 'Center/Top', 'mai-pro-engine' ),
+                    //         'right, top'     => __( 'Right/Top', 'mai-pro-engine' ),
+                    //         'left, middle'   => __( 'Left/Middle', 'mai-pro-engine' ),
+                    //         'center, middle' => __( 'Center/Middle', 'mai-pro-engine' ),
+                    //         'right, middle'  => __( 'Right/Middle', 'mai-pro-engine' ),
+                    //         'left, bottom'   => __( 'Left/Bottom', 'mai-pro-engine' ),
+                    //         'center, bottom' => __( 'Center/Bottom', 'mai-pro-engine' ),
+                    //         'right, bottom'  => __( 'Right/Bottom', 'mai-pro-engine' ),
+                    //     ),
+                    // ),
                 ),
                 // keep this w/ a key of 'options-page' and use the button slug as the value
                 'show_on' => array( 'key' => 'options-page', 'value' => $button_data['slug'] ),
@@ -521,19 +547,19 @@ final class Mai_Pro_Engine {
                     ),
                     array(
                         'name'    => __( 'Content Alignment', 'mai-pro-engine' ),
-                        // 'desc'    => __( 'Horizontally and Vertically align the columns.', 'mai-pro-engine' ),
+                        'desc'    => __( 'Horizontally/Vertically align the columns and content.', 'mai-pro-engine' ),
                         'id'      => 'align',
                         'type'    => 'select',
                         'options' => array(
-                            'top, left'      => __( 'Top/Left', 'mai-pro-engine' ),
-                            'top, center'    => __( 'Top/Center', 'mai-pro-engine' ),
-                            'top, right'     => __( 'Top/Right', 'mai-pro-engine' ),
-                            'middle, left'   => __( 'Middle/Left', 'mai-pro-engine' ),
-                            'middle, center' => __( 'Middle/Center', 'mai-pro-engine' ),
-                            'middle, right'  => __( 'Middle/Right', 'mai-pro-engine' ),
-                            'bottom, left'   => __( 'Bottom/Left', 'mai-pro-engine' ),
-                            'bottom, center' => __( 'Bottom/Center', 'mai-pro-engine' ),
-                            'bottom, right'  => __( 'Bottom/Right', 'mai-pro-engine' ),
+                            'left, top'      => __( 'Left/Top', 'mai-pro-engine' ),
+                            'center, top'    => __( 'Center/Top', 'mai-pro-engine' ),
+                            'right, top'     => __( 'Right/Top', 'mai-pro-engine' ),
+                            'left, middle'   => __( 'Left/Middle', 'mai-pro-engine' ),
+                            'center, middle' => __( 'Center/Middle', 'mai-pro-engine' ),
+                            'right, middle'  => __( 'Right/Middle', 'mai-pro-engine' ),
+                            'left, bottom'   => __( 'Left/Bottom', 'mai-pro-engine' ),
+                            'center, bottom' => __( 'Center/Bottom', 'mai-pro-engine' ),
+                            'right, bottom'  => __( 'Right/Bottom', 'mai-pro-engine' ),
                         ),
                     ),
                     array(
@@ -552,8 +578,9 @@ final class Mai_Pro_Engine {
                         'desc'       => __( 'The number of columns', 'mai-pro-engine' ),
                         'default'    => 3,
                         'id'         => 'columns',
-                        'type'       => 'text_small',
+                        'type'       => 'text',
                         'attributes' => array(
+                            'class'   => 'cmb2-text-small',
                             'type'    => 'number',
                             'pattern' => '\d*',
                         ),
@@ -563,8 +590,9 @@ final class Mai_Pro_Engine {
                         'desc'       => __( 'The number of entries', 'mai-pro-engine' ),
                         'default'    => 12,
                         'id'         => 'number',
-                        'type'       => 'text_small',
+                        'type'       => 'text',
                         'attributes' => array(
+                            'class'   => 'cmb2-text-small',
                             'type'    => 'number',
                             'pattern' => '\d*',
                         ),
@@ -575,10 +603,11 @@ final class Mai_Pro_Engine {
                         'id'   => 'slider',
                         'type' => 'checkbox',
                     ),
+                    // Below doesn't work!!!!
                     // array(
                     //     'name'              => __( 'Slider', 'mai-pro-engine' ),
                     //     // 'desc'              => __( 'Display as a slider', 'mai-pro-engine' ),
-                    //     'id'                => 'slider',
+                    //     'id'                => 'sliders',
                     //     'type'              => 'multicheck_inline',
                     //     'select_all_button' => false,
                     //     'options'           => array(
@@ -593,9 +622,18 @@ final class Mai_Pro_Engine {
 
         }
 
+        // add_filter( 'grid_shortcode_fields', function( $values, $this ) {
+        //     // trace( absint( filter_var( $values['slider'][0], FILTER_VALIDATE_BOOLEAN ) ) );
+        //     // trace( $values['slider'] );
+        //     // if ( isset( $values['slider'] ) && '1' == $values['slider'] ) {
+        //         $values['slider'] = absint( filter_var( $values['slider'][0], FILTER_VALIDATE_BOOLEAN ) );
+        //     // }
+        //     return $values;
+        // }, 10, 2 );
+
         // Filter the rendered shortcode and show a simple block
         add_filter( 'shortcode_button_parse_mce_view_before_send_grid', function( $send ) {
-            return '<div class="grid-shortcode" style="background-color:#f7f7f7;text-align:center;padding:24px;"><span class="dashicons dashicons-grid-view" style="display:inline-block;width:auto;height:auto;vertical-align:middle;font-size:36px;"></span> <strong>Grid Content</strong></div>';
+            return '<div class="grid-shortcode" style="background-color:#f7f7f7;text-align:left;padding:24px;"><span class="dashicons dashicons-grid-view" style="display:inline-block;width:auto;height:auto;vertical-align:middle;font-size:36px;margin-right:8px;"></span> <strong>Grid Content</strong></div>';
         });
 
     }
