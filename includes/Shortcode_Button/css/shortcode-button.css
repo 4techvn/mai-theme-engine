@@ -1,13 +1,7 @@
-#scb-wrap.scbshow {
-	display: block;
-}
-.scbshow {
-	display: block;
-}
 .scb-form-wrap, .scb-wrap {
 	display: none;
 }
-.scbshow {
+#scb-wrap.scbshow, .scb-form-wrap.scbshow, .scb-wrap.scbshow, .scbshow {
 	display: block;
 }
 #scb-modal {
