@@ -126,7 +126,7 @@ final class Mai_Pro_Engine {
 	private function setup() {
 
 		// Classes.
-		require_once MAI_PRO_ENGINE_PLUGIN_DIR . 'classes/class-cpt-settings.php';
+		foreach ( glob( MAI_PRO_ENGINE_LIB_DIR . 'classes/*.php' ) as $file ) { include_once $file; }
 
 		// Includes (Vendor).
 		require_once MAI_PRO_ENGINE_INCLUDES_DIR . 'CMB2/init.php';

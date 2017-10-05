@@ -28,9 +28,9 @@
  *
  * @return  void
  */
-add_action( 'init', 'mai_cpt_settings_init_og', 999 );
+// add_action( 'init', 'mai_cpt_settings_init_og', 999 );
 function mai_cpt_settings_init_og() {
-return;
+
 	/**
 	 * Get post types.
 	 *
@@ -440,7 +440,7 @@ function mai_register_cpt_settings( $wp_customize, $post_type, $settings ) {
 		)
 	);
 
-	if ( $settings['layout'] && $settings[$single_layout_key] ) {
+	if ( $settings['layout'] || $settings[$single_layout_key] ) {
 
 		// Layouts break.
 		$wp_customize->add_setting(

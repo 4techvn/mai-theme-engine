@@ -556,6 +556,32 @@ function mai_is_no_sidebar() {
 }
 
 /**
+ * Output the bg image link HTML. Must be used in the loop (posts/cpts only!).
+ *
+ * This doesn't have a parameter because it's hooked directly,
+ * via add_action( 'genesis_entry_header', 'mai_do_bg_image_link', 1 );
+ *
+ * @return void.
+ */
+function mai_do_bg_image_link() {
+	echo mai_get_bg_image_link();
+}
+
+/**
+ * Get the bg image link HTML.
+ *
+ * @param  string $url (optional) The URL to use for the HTML.
+ * @param  string $title (optional) The title to use for the HTML.
+ *
+ * @return string|HTML
+ */
+function mai_get_bg_image_link( $url = '', $title = '' ) {
+	$url   = $url ? esc_url( $url ) : get_permalink();
+	$title = $title ? esc_html( $title ) : get_the_title();
+	return sprintf( '<a href="%s" class="bg-link"><span class="screen-reader-text" aria-hidden="true">%s</span></a>', $url, $title );
+}
+
+/**
  * Add background color HTML attributes to an element.
  *
  * @param   array   $attributes  The existing HTML attributes.
