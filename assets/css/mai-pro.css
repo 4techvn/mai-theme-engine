@@ -588,7 +588,6 @@ input[type="submit"],
 	-ms-flex-align: center;-webkit-box-align: center;align-items: center;
 	cursor: pointer;
 	width: auto;
-	white-space: normal;
 	background-image: none;
 	background-color: #323232;
 	color: rgba(255, 255, 255, 1);
@@ -598,10 +597,9 @@ input[type="submit"],
 	text-align: center;
 	text-decoration: none;
 	text-shadow: none;
-	margin: 0;
 	border: none;
 	border-radius: 0;
-	white-space: nowrap;
+	white-space: normal;
 	-webkit-box-shadow: none;box-shadow: none;
 	-webkit-font-smoothing: antialiased;
 }
