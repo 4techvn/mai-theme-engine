@@ -4,45 +4,15 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * Setup CPT's customizer and Archive Settings fields.
- *
- * Possible keys/settings:
- *
- * 'banner_id'
- * 'hide_banner'
- * 'banner_disable_{post_type}           (saves to 'genesis-settings' option)
- * 'layout_{post_type}'                  (saves to 'genesis-settings' option)
- * 'layout'
- * 'singular_image_{post_type}'          (saves to 'genesis-settings' option)
- * 'remove_meta_{post_type}'             (saves to 'genesis-settings' option)
- * 'enable_content_archive_settings'
- * 'columns'
- * 'content_archive'
- * 'content_archive_limit'
- * 'content_archive_thumbnail'
- * 'image_location'
- * 'image_size'
- * 'image_alignment'
- * 'more_link'
- * 'more_link_text'
- * 'remove_meta'
- * 'posts_per_page'
- * 'posts_nav'
- *
- * @return  void
- */
-
-
-/**
  * Main plugin class.
  *
  * @package Mai_CPT
  */
 class Mai_CPT {
 
-	protected $object;
-	protected $supports;
-	protected $settings;
+	public $object;
+	public $supports;
+	public $settings;
 
 	public function __construct( $post_type ) {
 
@@ -77,19 +47,20 @@ class Mai_CPT {
 		);
 
 		// If no entry meta support.
-		if ( ! ( isset( $this->supports['genesis-entry-meta-before-content'] ) || isset( $this->supports['genesis-entry-meta-after-content'] ) ) ) {
+		if ( ! ( $this->supports( 'genesis-entry-meta-after-content' ) || $this->supports( 'genesis-entry-meta-after-content' ) ) ) {
 			$this->settings['remove_meta']               = false;
 			$this->settings['remove_meta_post_type']     = false;
 		}
 
 		// If no editor or no excerpt support.
-		if ( ! ( isset( $this->supports['editor'] ) || isset( $this->supports['excerpt'] ) ) ) {
+		if ( ! ( $this->supports( 'editor' ) || $this->supports( 'excerpt' ) ) ) {
+
 			$this->settings['content_archive']           = false;
 			$this->settings['content_archive_limit']     = false;
 		}
 
 		// If no featured image support.
-		if ( ! isset( $this->supports['thumbnail'] ) ) {
+		if ( ! $this->supports( 'thumbnail' ) ) {
 			$this->settings['singular_image_post_type']  = false;
 			$this->settings['content_archive_thumbnail'] = false;
 			$this->settings['image_location']            = false;
@@ -108,7 +79,7 @@ class Mai_CPT {
 	}
 
 	public function supports( $key ) {
-		if ( in_array( $this->supports ) ) {
+		if ( in_array( $key, $this->supports ) ) {
 			return true;
 		}
 		return false;

@@ -541,6 +541,18 @@ function mai_get_the_posts_meta( $post = '' ) {
 	return $post_meta;
 }
 
+function mai_get_archive_post_type() {
+	if ( ! is_archive() ) {
+		return false;
+	}
+	if ( is_post_type_archive() ) {
+
+	}
+	elseif ( is_tax() || is_category() || is_tag() ) {
+
+	}
+}
+
 function mai_is_no_sidebar() {
 	$layout = genesis_site_layout();
 	$no_sidebars = array(
