@@ -5,7 +5,7 @@
  *
  * @param WP_Customize_Manager $wp_customize WP_Customize_Manager instance.
  */
-add_action( 'customize_register', 'mai_register_customizer_content_archives_settings', 20 );
+// add_action( 'customize_register', 'mai_register_customizer_content_archives_settings', 20 );
 function mai_register_customizer_content_archives_settings( $wp_customize ) {
 
 	/* ******************** *

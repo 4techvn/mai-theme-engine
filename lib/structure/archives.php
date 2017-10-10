@@ -119,6 +119,11 @@ function mai_remove_content_archive_loop() {
 		return;
 	}
 
+	$post_type = new Mai_Post_Type( mai_get_archive_post_type() );
+	if ( ! $post_type->has_setting( 'remove_loop' ) ) {
+		return;
+	}
+
 	// Bail if not removing the loop.
 	$remove_loop = mai_get_the_archive_setting( 'remove_loop' );
 	if ( ! (bool) $remove_loop ) {

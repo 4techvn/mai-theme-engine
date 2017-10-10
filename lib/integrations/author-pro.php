@@ -11,7 +11,6 @@ if ( function_exists( 'gapro_autoloader' ) ) {
 	add_action( 'init', array( 'Genesis_Author_Pro_CPT', 'init' ) );
 }
 
-
 add_action( 'genesis_before_loop', function() {
 	if ( ! class_exists( 'Genesis_Author_Pro' ) ) {
 		return;

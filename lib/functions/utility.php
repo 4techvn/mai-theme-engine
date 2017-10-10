@@ -133,28 +133,19 @@ function mai_get_archive_setting_by_template( $key, $check_for_archive_setting, 
 				if ( ! $meta ) {
 
 					// If post or page taxonomy.
-					if ( is_category() || is_tag() || is_tax( get_object_taxonomies( 'post', 'names' ) ) ) {
+					if ( is_category() || is_tag() ) {
 						$meta = genesis_get_option( $key );
 					}
 
 					// Custom taxonomy archive.
 					else {
-
-						$tax = isset( get_queried_object()->taxonomy ) ? get_taxonomy( get_queried_object()->taxonomy ) : false;
-						if ( $tax ) {
-							/**
-							 * If the taxonomy is only registered to 1 post type.
-							 * Otherwise, how will we pick which post type archive to fall back to?
-							 * If more than one, we'll just have to use the fallback later.
-							 */
-							if ( 1 === count( (array) $tax->object_type ) ) {
-								$post_type = reset( $tax->object_type );
-								// If we have a post type and it supports genesis-cpt-archive-settings
-								// if ( $post_type && genesis_has_post_type_archive_support( $post_type ) ) {
-								if ( $post_type ) {
-									if ( ! $check_for_archive_setting || ( $check_for_archive_setting && $enabled = genesis_get_cpt_option( 'enable_content_archive_settings', $post_type ) ) ) {
-										$meta = genesis_get_cpt_option( $key, $post_type );
-									}
+						$post_type = mai_get_archive_post_type();
+						if ( $post_type ) {
+							if ( ! $check_for_archive_setting || ( $check_for_archive_setting && $enabled = genesis_get_cpt_option( 'enable_content_archive_settings', $post_type ) ) ) {
+								if ( 'post' === $post_type ) {
+									$meta = genesis_get_option( $key );
+								} else {
+									$meta = genesis_get_cpt_option( $key, $post_type );
 								}
 							}
 						}
@@ -168,7 +159,7 @@ function mai_get_archive_setting_by_template( $key, $check_for_archive_setting, 
 	 * CPT archive.
 	 * This may be called too early to use get_post_type().
 	 */
-	elseif ( is_post_type_archive() && post_type_supports( get_query_var( 'post_type' ), 'mai-cpt-settings' ) ) {
+	elseif ( is_post_type_archive() && post_type_supports( mai_get_archive_post_type(), 'mai-cpt-settings' ) ) {
 		if ( ! $check_for_archive_setting || ( $check_for_archive_setting && $enabled = genesis_get_cpt_option( 'enable_content_archive_settings' ) ) ) {
 			$meta = genesis_get_cpt_option( $key );
 		}
@@ -193,6 +184,10 @@ function mai_get_archive_setting_by_template( $key, $check_for_archive_setting, 
 
 	// Return
 	return null;
+}
+
+function mai_archive_has_setting( $key ) {
+
 }
 
 /**

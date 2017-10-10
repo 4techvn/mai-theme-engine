@@ -6,9 +6,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /**
  * Main plugin class.
  *
- * @package Mai_CPT
+ * @package Mai_Post_Type
  */
-class Mai_CPT {
+class Mai_Post_Type {
 
 	public $object;
 	public $supports;
@@ -16,20 +16,21 @@ class Mai_CPT {
 
 	public function __construct( $post_type ) {
 
-		$this->object   = get_post_type_object( $post_type );
- 		$this->supports = get_all_post_type_supports( $post_type );
+		$this->post_type = $post_type;
+		$this->object    = get_post_type_object( $this->post_type );
+ 		$this->supports  = get_all_post_type_supports( $this->post_type );
 
 		// Settings defaults array.
-		$this->settings = array(
+		$this->settings  = array(
 			'banner_id'                           => true,
-			'hide_banner'                         => true,
-			'banner_disable_post_type'            => true,
-			'banner_disable_taxonomies_post_type' => true,
-			'banner_featured_image_post_type'     => true,
-			'layout'                              => true,
-			'layout_post_type'                    => true,
-			'singular_image_post_type'            => true,
-			'remove_meta_post_type'               => true,
+			'hide_banner'                         => true, // Archive (Main)
+			'banner_disable_post_type'            => true, // Singular
+			'banner_disable_taxonomies_post_type' => true, // Archives (Taxo)
+			'banner_featured_image_post_type'     => true, // Singular
+			'layout'                              => true, // Archives
+			'layout_post_type'                    => true, // Singular
+			'singular_image_post_type'            => true, // Singular
+			'remove_meta_post_type'               => true, // Singular
 			'enable_content_archive_settings'     => true,
 			'columns'                             => true,
 			'content_archive'                     => true,
@@ -40,15 +41,25 @@ class Mai_CPT {
 			'image_alignment'                     => true,
 			'more_link'                           => true,
 			// 'more_link_text'                   => true,
-			'remove_loop'                         => true,
-			'remove_meta'                         => true,
+			// 'remove_loop'                         => true, // this is metabox only, not customizer i think - still need it?
+			// 'remove_meta'                         => true,
 			'posts_per_page'                      => true,
 			'posts_nav'                           => true,
 		);
 
+		if ( $this->built_in() ) {
+			$this->settings['banner_id']                 = false;
+		}
+
+		// If no archives.
+		if ( ! $this->has_archives() ) {
+			$this->settings['hide_banner']               = false;
+			$this->settings['layout']                    = false;
+		}
+
 		// If no entry meta support.
 		if ( ! ( $this->supports( 'genesis-entry-meta-after-content' ) || $this->supports( 'genesis-entry-meta-after-content' ) ) ) {
-			$this->settings['remove_meta']               = false;
+			// $this->settings['remove_meta']               = false;
 			$this->settings['remove_meta_post_type']     = false;
 		}
 
@@ -74,8 +85,32 @@ class Mai_CPT {
 		 * Enabling disabled settings does not mean they will work as expected.
 		 * Many plugins that register CPT's do have their own templates that break these default settings/filters in Genesis/Mai Pro.
 		 */
-		$this->settings = apply_filters( 'mai_cpt_settings', $this->settings, $post_type );
+		$this->settings = apply_filters( 'mai_cpt_settings', $this->settings, $this->post_type );
 
+	}
+
+	public function built_in() {
+		return $this->object->_builtin;
+	}
+
+	public function has_archives() {
+		// If the post type itself has an archive.
+		if ( (bool) $this->object->has_archive ) {
+			return true;
+		}
+		// Get page taxonomies.
+		$taxos = get_object_taxonomies( $this->post_type, 'objects' );
+		// If taxonomies.
+		if ( $taxos ) {
+			// Check for public.
+			foreach ( $taxos as $taxo ) {
+				if ( $taxo->public ) {
+					return true;
+				}
+			}
+		}
+		// Nope.
+		return false;
 	}
 
 	public function supports( $key ) {

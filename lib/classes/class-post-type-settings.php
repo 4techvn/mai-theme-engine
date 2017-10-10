@@ -24,20 +24,20 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * 'image_size'
  * 'image_alignment'
  * 'more_link'
- * 'remove_meta'
+ * 'remove_meta_{post_type}'
  * 'posts_per_page'
  * 'posts_nav'
  *
  * @return  void
  */
-add_action( 'init', 'mai_cpt_settings_init', 999 );
-function mai_cpt_settings_init() {
+add_action( 'init', 'mai_post_type_settings_init', 999 );
+function mai_post_type_settings_init() {
 	/**
 	 * Get post types.
 	 *
 	 * @return  array  Post types  array( 'name' => object ).
 	 */
-	$post_types = mai_get_cpt_settings_post_types();
+	$post_types = mai_get_post_type_settings_post_types();
 
 	// Bail if no post types.
 	if ( ! $post_types ) {
@@ -46,24 +46,22 @@ function mai_cpt_settings_init() {
 
 	// Loop through the post types.
 	foreach ( $post_types as $post_type => $object ) {
-		$settings = new Mai_CPT_Settings( $post_type );
+		$settings = new Mai_Post_Type_Settings( $post_type );
 	}
 }
 
 /**
  * Main plugin class.
  *
- * @package Mai_CPT_Settings
+ * @package Mai_Post_Type_Settings
  */
-class Mai_CPT_Settings {
+class Mai_Post_Type_Settings {
 
 	protected $post_type;
 	protected $cpt;
-
-	protected $settings_field;
 	protected $genesis_settings;
+	protected $settings_field;
 	protected $section_id;
-	protected $post_type_object;
 	protected $prefix;
 	protected $banner_featured_image_key;
 	protected $banner_disable_key;
@@ -75,9 +73,9 @@ class Mai_CPT_Settings {
 	public function __construct( $post_type ) {
 
 		$this->post_type                     = $post_type;
-		$this->cpt                           = new Mai_CPT( $this->post_type );
-		$this->settings_field                = GENESIS_CPT_ARCHIVE_SETTINGS_FIELD_PREFIX . $this->post_type;
+		$this->cpt                           = new Mai_Post_Type( $this->post_type );
 		$this->genesis_settings              = GENESIS_SETTINGS_FIELD;
+		$this->settings_field                = $this->get_settings_field();
 		$this->section_id                    = sprintf( 'mai_%s_cpt_settings', $this->post_type );
 		$this->prefix                        = sprintf( '%s_', $this->post_type );
 
@@ -85,7 +83,7 @@ class Mai_CPT_Settings {
 		$this->banner_featured_image_key     = sprintf( 'banner_featured_image_%s', $this->post_type );
 		$this->banner_disable_key            = sprintf( 'banner_disable_%s', $this->post_type );
 		$this->banner_disable_taxonomies_key = sprintf( 'banner_disable_taxonomies_%s', $this->post_type );
-		$this->layout_key                    = sprintf( 'layout_%s', $this->post_type );
+		$this->singular_layout_key           = sprintf( 'layout_%s', $this->post_type );
 		$this->singular_image_key            = sprintf( 'singular_image_%s', $this->post_type );
 		$this->remove_meta_key               = sprintf( 'remove_meta_%s', $this->post_type );
 
@@ -101,6 +99,13 @@ class Mai_CPT_Settings {
 		// Filters.
 		add_filter( "pre_update_option_{$this->settings_field}", array( $this, 'update_setting' ), 10, 2 );
 		add_filter( 'genesis_options',                           array( $this, 'filter_options' ), 10, 2 );
+	}
+
+	function get_settings_field() {
+		if ( $this->cpt->built_in() ) {
+			return $this->genesis_settings;
+		}
+		return GENESIS_CPT_ARCHIVE_SETTINGS_FIELD_PREFIX . $this->post_type;
 	}
 
 	/**
@@ -188,7 +193,7 @@ class Mai_CPT_Settings {
 				new Mai_Customize_Control_Content( $wp_customize,
 					$this->prefix . 'cpt_hide_banner_customizer_heading',
 					array(
-						'label'           => __( 'Hide banner on (archive/single)', 'mai-pro-engine' ),
+						'label'           => __( 'Hide banner', 'mai-pro-engine' ),
 						'section'         => $this->section_id,
 						'settings'        => false,
 						'active_callback' => function() use ( $wp_customize ) {
@@ -395,19 +400,19 @@ class Mai_CPT_Settings {
 		if ( $this->cpt->has_setting( 'layout_post_type' ) ) {
 
 			$wp_customize->add_setting(
-				$this->customizer_get_field_name( $this->genesis_settings, $this->single_layout_key ),
+				$this->customizer_get_field_name( $this->genesis_settings, $this->singular_layout_key ),
 				array(
-					'default'           => sanitize_key( mai_get_default_option( $this->single_layout_key ) ),
+					'default'           => sanitize_key( mai_get_default_option( $this->singular_layout_key ) ),
 					'type'              => 'option',
 					'sanitize_callback' => 'sanitize_key',
 				)
 			);
 			$wp_customize->add_control(
-				$this->prefix . $this->single_layout_key,
+				$this->prefix . $this->singular_layout_key,
 				array(
 					'label'    => __( 'Single Entries', 'mai-pro-engine' ),
 					'section'  => $this->section_id,
-					'settings' => $this->customizer_get_field_name( $this->genesis_settings, $this->single_layout_key ),
+					'settings' => $this->customizer_get_field_name( $this->genesis_settings, $this->singular_layout_key ),
 					'type'     => 'select',
 					'choices'  => array_merge( array( '' => __( '- Site Default -', 'mai-pro-engine' ) ), genesis_get_layouts_for_customizer() ),
 				)
@@ -486,11 +491,11 @@ class Mai_CPT_Settings {
 
 			$remove_meta_choices = array();
 
-			if ( $cpt->supports( 'genesis-entry-meta-before-content' ) ) {
+			if ( $this->cpt->supports( 'genesis-entry-meta-before-content' ) ) {
 				$remove_meta_choices['post_info'] = __( 'Remove Post Info', 'mai-pro-engine' );
 			}
 
-			if ( $cpt->supports( 'genesis-entry-meta-after-content' ) ) {
+			if ( $this->cpt->supports( 'genesis-entry-meta-after-content' ) ) {
 				$remove_meta_choices['post_meta'] = __( 'Remove Post Meta', 'mai-pro-engine' );
 			}
 
@@ -595,17 +600,17 @@ class Mai_CPT_Settings {
 		}
 
 		// Content.
-		if ( $this->cpt->has_setting( 'content_archive' ) && ( $cpt->supports( 'editor' ) || $cpt->supports( 'excerpt' ) ) ) {
+		if ( $this->cpt->has_setting( 'content_archive' ) && ( $this->cpt->supports( 'editor' ) || $this->cpt->supports( 'excerpt' ) ) ) {
 
 			$content_archive_choices = array(
 				'none' => __( 'No content', 'mai-pro-engine' ),
 			);
 
-			if ( $cpt->supports( 'editor' ) ) {
+			if ( $this->cpt->supports( 'editor' ) ) {
 				$content_archive_choices['full'] = __( 'Entry content', 'genesis' );
 			}
 
-			if ( $cpt->supports( 'excerpt' ) ) {
+			if ( $this->cpt->supports( 'excerpt' ) ) {
 				$content_archive_choices['excerpts'] = __( 'Entry excerpts', 'genesis' );
 			}
 
@@ -862,11 +867,11 @@ class Mai_CPT_Settings {
 
 			$remove_meta_choices = array();
 
-			if ( $cpt->supports( 'genesis-entry-meta-before-content' ) ) {
+			if ( $this->cpt->supports( 'genesis-entry-meta-before-content' ) ) {
 				$remove_meta_choices['post_info'] = __( 'Remove Post Info', 'mai-pro-engine' );
 			}
 
-			if ( $cpt->supports( 'genesis-entry-meta-after-content' ) ) {
+			if ( $this->cpt->supports( 'genesis-entry-meta-after-content' ) ) {
 				$remove_meta_choices['post_meta'] = __( 'Remove Post Meta', 'mai-pro-engine' );
 			}
 

@@ -95,6 +95,7 @@ function mai_get_default_options() {
 		'image_size'                => 'one-third',
 		'image_alignment'           => '',
 		'posts_nav'                 => 'numeric',
+		'site_layout'               => 'content-sidebar',
 		// Mai General.
 		'enable_sticky_header'      => 0,
 		'enable_shrink_header'      => 0,
@@ -111,9 +112,9 @@ function mai_get_default_options() {
 		'banner_height'             => 'md',
 		'banner_content_width'      => 'auto',
 		'banner_align_text'         => 'center',
-		'banner_featured_image'     => 0,
-		'banner_disable_post_types' => array(),
-		'banner_disable_taxonomies' => array(),
+		// 'banner_featured_image'     => 0,
+		// 'banner_disable_post_types' => array(),
+		// 'banner_disable_taxonomies' => array(),
 		// Mai Archives.
 		'columns'                   => 1,
 		'image_location'            => 'before_title',
@@ -122,12 +123,12 @@ function mai_get_default_options() {
 		'remove_meta'               => array(),
 		'posts_per_page'            => get_option( 'posts_per_page' ),
 		// Mai Singular.
-		'singular_image_page'       => 1,
-		'singular_image_post'       => 1,
-		'remove_meta_post'          => array(),
+		// 'singular_image_page'       => 1,
+		// 'singular_image_post'       => 1,
+		// 'remove_meta_post'          => array(),
 		// Mai Layouts.
-		'layout_page'               => '',
-		'layout_post'               => '',
+		// 'layout_page'               => '',
+		// 'layout_post'               => '',
 		'layout_archive'            => 'full-width-content',
 		// Mai Utility.
 		'mai_db_version'            => MAI_PRO_ENGINE_DB_VERSION,
@@ -138,7 +139,7 @@ function mai_get_default_options() {
 	 *
 	 * @return  array  Post types  array( 'name' => object )
 	 */
-	$post_types = mai_get_cpt_settings_post_types();
+	$post_types = mai_get_post_type_settings_post_types();
 
 	if ( $post_types ) {
 		// Loop through em.

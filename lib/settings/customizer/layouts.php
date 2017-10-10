@@ -71,45 +71,45 @@ function mai_register_customizer_site_layouts_settings( $wp_customize ) {
 	);
 
 	// Pages.
-	$wp_customize->add_setting(
-		_mai_customizer_get_field_name( $settings_field, 'layout_page' ),
-		array(
-			'default'           => sanitize_key( mai_get_default_option( 'layout_page' ) ),
-			'type'              => 'option',
-			'sanitize_callback' => 'sanitize_key',
-		)
-	);
-	$wp_customize->add_control(
-		'layout_page',
-		array(
-			'label'    => __( 'Pages', 'mai-pro-engine' ),
-			'section'  => $section,
-			'settings' => _mai_customizer_get_field_name( $settings_field, 'layout_page' ),
-			'priority' => 10,
-			'type'     => 'select',
-			'choices'  => array_merge( array( '' => __( '- Site Default -', 'mai-pro-engine' ) ), genesis_get_layouts_for_customizer() ),
-		)
-	);
+	// $wp_customize->add_setting(
+	// 	_mai_customizer_get_field_name( $settings_field, 'layout_page' ),
+	// 	array(
+	// 		'default'           => sanitize_key( mai_get_default_option( 'layout_page' ) ),
+	// 		'type'              => 'option',
+	// 		'sanitize_callback' => 'sanitize_key',
+	// 	)
+	// );
+	// $wp_customize->add_control(
+	// 	'layout_page',
+	// 	array(
+	// 		'label'    => __( 'Pages', 'mai-pro-engine' ),
+	// 		'section'  => $section,
+	// 		'settings' => _mai_customizer_get_field_name( $settings_field, 'layout_page' ),
+	// 		'priority' => 10,
+	// 		'type'     => 'select',
+	// 		'choices'  => array_merge( array( '' => __( '- Site Default -', 'mai-pro-engine' ) ), genesis_get_layouts_for_customizer() ),
+	// 	)
+	// );
 
 	// Posts.
-	$wp_customize->add_setting(
-		_mai_customizer_get_field_name( $settings_field, 'layout_post' ),
-		array(
-			'default'           => sanitize_key( mai_get_default_option( 'layout_post' ) ),
-			'type'              => 'option',
-			'sanitize_callback' => 'sanitize_key',
-		)
-	);
-	$wp_customize->add_control(
-		'layout_post',
-		array(
-			'label'    => __( 'Posts', 'mai-pro-engine' ),
-			'section'  => $section,
-			'settings' => _mai_customizer_get_field_name( $settings_field, 'layout_post' ),
-			'priority' => 10,
-			'type'     => 'select',
-			'choices'  => array_merge( array( '' => __( '- Site Default -', 'mai-pro-engine' ) ), genesis_get_layouts_for_customizer() ),
-		)
-	);
+	// $wp_customize->add_setting(
+	// 	_mai_customizer_get_field_name( $settings_field, 'layout_post' ),
+	// 	array(
+	// 		'default'           => sanitize_key( mai_get_default_option( 'layout_post' ) ),
+	// 		'type'              => 'option',
+	// 		'sanitize_callback' => 'sanitize_key',
+	// 	)
+	// );
+	// $wp_customize->add_control(
+	// 	'layout_post',
+	// 	array(
+	// 		'label'    => __( 'Posts', 'mai-pro-engine' ),
+	// 		'section'  => $section,
+	// 		'settings' => _mai_customizer_get_field_name( $settings_field, 'layout_post' ),
+	// 		'priority' => 10,
+	// 		'type'     => 'select',
+	// 		'choices'  => array_merge( array( '' => __( '- Site Default -', 'mai-pro-engine' ) ), genesis_get_layouts_for_customizer() ),
+	// 	)
+	// );
 
 }

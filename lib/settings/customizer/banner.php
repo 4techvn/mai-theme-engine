@@ -266,73 +266,73 @@ function mai_register_banner_customizer_settings( $wp_customize ) {
 	);
 
 	// Disable post types.
-	$wp_customize->add_setting(
-		_mai_customizer_get_field_name( $settings_field, 'banner_disable_post_types' ),
-		array(
-			'default'           => _mai_customizer_multicheck_sanitize_key( mai_get_default_option( 'banner_disable_post_types' ) ),
-			'type'              => 'option',
-			'sanitize_callback' => '_mai_customizer_multicheck_sanitize_key',
-		)
-	);
-	$wp_customize->add_control(
-		new Mai_Customize_Control_Multicheck( $wp_customize,
-			'banner_disable_post_types',
-			array(
-				'label'       => __( 'Disable on (post types)', 'mai-pro-engine' ),
-				'description' => __( 'Disable on the following singular post type.', 'mai-pro-engine' ),
-				'section'     => $section,
-				'settings'    => _mai_customizer_get_field_name( $settings_field, 'banner_disable_post_types' ),
-				'priority'    => 10,
-				'choices'     => array(
-					'page' => __( 'Pages', 'mai-pro-engine' ),
-					'post' => __( 'Posts', 'mai-pro-engine' ),
-				),
-				'active_callback' => function() use ( $wp_customize, $settings_field ) {
-					return _mai_customizer_is_banner_area_enabled_globally( $wp_customize, $settings_field );
-				},
-			)
-		)
-	);
+	// $wp_customize->add_setting(
+	// 	_mai_customizer_get_field_name( $settings_field, 'banner_disable_post_types' ),
+	// 	array(
+	// 		'default'           => _mai_customizer_multicheck_sanitize_key( mai_get_default_option( 'banner_disable_post_types' ) ),
+	// 		'type'              => 'option',
+	// 		'sanitize_callback' => '_mai_customizer_multicheck_sanitize_key',
+	// 	)
+	// );
+	// $wp_customize->add_control(
+	// 	new Mai_Customize_Control_Multicheck( $wp_customize,
+	// 		'banner_disable_post_types',
+	// 		array(
+	// 			'label'       => __( 'Disable on (post types)', 'mai-pro-engine' ),
+	// 			'description' => __( 'Disable on the following singular post type.', 'mai-pro-engine' ),
+	// 			'section'     => $section,
+	// 			'settings'    => _mai_customizer_get_field_name( $settings_field, 'banner_disable_post_types' ),
+	// 			'priority'    => 10,
+	// 			'choices'     => array(
+	// 				'page' => __( 'Pages', 'mai-pro-engine' ),
+	// 				'post' => __( 'Posts', 'mai-pro-engine' ),
+	// 			),
+	// 			'active_callback' => function() use ( $wp_customize, $settings_field ) {
+	// 				return _mai_customizer_is_banner_area_enabled_globally( $wp_customize, $settings_field );
+	// 			},
+	// 		)
+	// 	)
+	// );
 
 	/**
 	 * Disable taxonomies.
 	 * Only taxos registered to 'post' and 'page' post_type.
 	 * Custom taxos (on CPT's) are handled on the CPT settings panel.
 	 */
-	$disable_taxonomies = array();
-	$taxonomies         = get_object_taxonomies( 'post', 'objects' );
-	if ( $taxonomies ) {
-		foreach ( $taxonomies as $taxo ) {
-			// If taxo is not public or is registered to more than one object.
-			if ( ! $taxo->public || ( count( (array) $taxo->object_type ) > 1 ) ) {
-				continue;
-			}
-			$disable_taxonomies[$taxo->name] = $taxo->label;
-		}
-		$wp_customize->add_setting(
-			_mai_customizer_get_field_name( $settings_field, 'banner_disable_taxonomies' ),
-			array(
-				'default'           => _mai_customizer_multicheck_sanitize_key( mai_get_default_option( 'banner_disable_taxonomies' ) ),
-				'type'              => 'option',
-				'sanitize_callback' => '_mai_customizer_multicheck_sanitize_key',
-			)
-		);
-		$wp_customize->add_control(
-			new Mai_Customize_Control_Multicheck( $wp_customize,
-				'banner_disable_taxonomies',
-				array(
-					'label'           => __( 'Disable on (taxonomies)', 'mai-pro-engine' ),
-					'description'     => __( 'Disable on the following taxonomy archives.', 'mai-pro-engine' ),
-					'section'         => $section,
-					'settings'        => _mai_customizer_get_field_name( $settings_field, 'banner_disable_taxonomies' ),
-					'priority'        => 10,
-					'choices'         => $disable_taxonomies,
-					'active_callback' => function() use ( $wp_customize, $settings_field ) {
-						return _mai_customizer_is_banner_area_enabled_globally( $wp_customize, $settings_field );
-					},
-				)
-			)
-		);
-	}
+	// $disable_taxonomies = array();
+	// $taxonomies         = get_object_taxonomies( 'post', 'objects' );
+	// if ( $taxonomies ) {
+	// 	foreach ( $taxonomies as $taxo ) {
+	// 		// If taxo is not public or is registered to more than one object.
+	// 		if ( ! $taxo->public || ( count( (array) $taxo->object_type ) > 1 ) ) {
+	// 			continue;
+	// 		}
+	// 		$disable_taxonomies[$taxo->name] = $taxo->label;
+	// 	}
+	// 	$wp_customize->add_setting(
+	// 		_mai_customizer_get_field_name( $settings_field, 'banner_disable_taxonomies' ),
+	// 		array(
+	// 			'default'           => _mai_customizer_multicheck_sanitize_key( mai_get_default_option( 'banner_disable_taxonomies' ) ),
+	// 			'type'              => 'option',
+	// 			'sanitize_callback' => '_mai_customizer_multicheck_sanitize_key',
+	// 		)
+	// 	);
+	// 	$wp_customize->add_control(
+	// 		new Mai_Customize_Control_Multicheck( $wp_customize,
+	// 			'banner_disable_taxonomies',
+	// 			array(
+	// 				'label'           => __( 'Disable on (taxonomies)', 'mai-pro-engine' ),
+	// 				'description'     => __( 'Disable on the following taxonomy archives.', 'mai-pro-engine' ),
+	// 				'section'         => $section,
+	// 				'settings'        => _mai_customizer_get_field_name( $settings_field, 'banner_disable_taxonomies' ),
+	// 				'priority'        => 10,
+	// 				'choices'         => $disable_taxonomies,
+	// 				'active_callback' => function() use ( $wp_customize, $settings_field ) {
+	// 					return _mai_customizer_is_banner_area_enabled_globally( $wp_customize, $settings_field );
+	// 				},
+	// 			)
+	// 		)
+	// 	);
+	// }
 
 }

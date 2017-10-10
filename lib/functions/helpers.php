@@ -40,6 +40,59 @@ function mai_is_content_archive() {
 	return $is_archive;
 }
 
+function mai_get_archive_post_type() {
+
+	static $post_type_cache = null;
+
+	if ( null !== $post_type_cache ) {
+		return $post_type_cache;
+	}
+
+	$post_type = 'post';
+
+	// Term archive.
+	if ( is_tax() ) {
+		$tax = isset( get_queried_object()->taxonomy ) ? get_taxonomy( get_queried_object()->taxonomy ) : false;
+		if ( $tax ) {
+			/**
+			 * Loop through and grab the first valid post type.
+			 * Taxonomies can be registered to other objects like Users too,
+			 * so we need to check it's a post type.
+			 */
+			foreach ( (array) $tax->object_type as $type ) {
+				if ( post_type_exists( $type ) ) {
+					$post_type = $type;
+					break;
+				}
+			}
+			// Add filter to force a specific post type to use for Mai CPT Settings on this taxonomy.
+			$post_type = apply_filters( 'mai_taxonomy_post_type', $post_type, $tax );
+		}
+	}
+	// CPT archive - this may be called too early to use get_post_type().
+	elseif ( is_post_type_archive() ) {
+		$post_type = get_post_type();
+		if ( ! $post_type ) {
+			$post_type = get_query_var( 'post_type' );
+		}
+	}
+
+	// Update cache.
+	if ( $post_type ) {
+		$post_type_cache = $post_type;
+	}
+
+	return $post_type;
+}
+
+function mai_cpt_has_setting( $post_type, $setting ) {
+	$cpt = Mai_CPT( $post_type );
+	if ( $cpt and $cpt->has_setting( $setting ) ) {
+		return true;
+	}
+	return false;
+}
+
 /**
  * Check if banner area is enabled.
  *
@@ -541,18 +594,6 @@ function mai_get_the_posts_meta( $post = '' ) {
 	return $post_meta;
 }
 
-function mai_get_archive_post_type() {
-	if ( ! is_archive() ) {
-		return false;
-	}
-	if ( is_post_type_archive() ) {
-
-	}
-	elseif ( is_tax() || is_category() || is_tag() ) {
-
-	}
-}
-
 function mai_is_no_sidebar() {
 	$layout = genesis_site_layout();
 	$no_sidebars = array(
@@ -709,8 +750,12 @@ function mai_is_admin_woo_shop_page() {
  *
  * @return  array  key = post type name and value = post type object.
  */
-function mai_get_cpt_settings_post_types() {
-	return apply_filters( 'mai_cpt_settings_post_types', genesis_get_cpt_archive_types() );
+function mai_get_post_type_settings_post_types() {
+	$post_types         = array();
+	$post_types['page'] = get_post_type_object( 'page' );
+	$post_types['post'] = get_post_type_object( 'post' );
+	$post_types         = array_merge( $post_types, (array) genesis_get_cpt_archive_types() );
+	return apply_filters( 'mai_post_type_settings_post_types', $post_types );
 }
 
 function mai_sections_has_title( $post_id ) {
