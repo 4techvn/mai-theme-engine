@@ -50,7 +50,8 @@ function mai_get_archive_post_type() {
 		return $post_type_cache;
 	}
 
-	$post_type = 'post';
+	$default   = 'post';
+	$post_type = '';
 
 	// Term archive.
 	if ( is_tax() ) {
@@ -71,6 +72,7 @@ function mai_get_archive_post_type() {
 			$post_type = apply_filters( 'mai_taxonomy_post_type', $post_type, $tax );
 		}
 	}
+
 	// CPT archive - this may be called too early to use get_post_type().
 	elseif ( is_post_type_archive() ) {
 		$post_type = get_post_type();
@@ -79,10 +81,11 @@ function mai_get_archive_post_type() {
 		}
 	}
 
+	// Post type or default.
+	$post_type = $post_type ? $post_type : $default;
+
 	// Update cache.
-	if ( $post_type ) {
-		$post_type_cache = $post_type;
-	}
+	$post_type_cache = $post_type;
 
 	return $post_type;
 }

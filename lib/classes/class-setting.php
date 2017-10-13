@@ -32,33 +32,42 @@ function mai_get_setting( $placeholder ) {
  */
 class Mai_Setting {
 
-	protected $name;
+	protected $placeholder;
 	protected $key;
 	protected $value;
 	protected $placeholders;
+	protected $singular_meta;
 	protected $direct;
-	protected $fallback;
 	protected $check;
+	protected $fallback;
 	protected $post_type;
+	protected $cpts;
 
 	/**
 	 * Setup the object.
 	 *
 	 * @param  string  $name  The setting name. May be a placeholder if the key uses the post_type name in it.
 	 */
-	function __construct( $name ) {
-		$this->name         = $name;
-		$this->key          = $this->key( $key );
-		$this->value        = $this->value( $key );
-		$this->placeholders = $this->placeholders();
-		$this->direct       = $this->direct();   // bool
-		$this->fallback     = $this->fallback(); // bool
-		$this->check        = $this->check();    // bool
-		$this->post_type    = mai_get_archive_post_type();
+	function __construct( $key ) {
+		$this->placeholder   = $key;
+		$this->key           = $this->key();
+		$this->value         = $this->value();
+		$this->placeholders  = $this->placeholders();  // array
+		$this->singular_meta = $this->singular_meta(); // bool
+		$this->direct        = $this->direct();        // bool
+		$this->check         = $this->check();         // bool
+		$this->fallback      = $this->fallback();      // bool
+		$this->post_type     = $this->post_type();
+		$this->cpts          = genesis_get_cpt_archive_types_names();
 	}
 
-	public function key( $placeholder ) {
-		return $this->keys[ $placeholder ];
+	/**
+	 * Get the actual key name from the placeholder.
+	 *
+	 * @return  string  The actual key name.
+	 */
+	public function key() {
+		return $this->keys[ $this->placeholder ];
 	}
 
 	/**
@@ -74,23 +83,59 @@ class Mai_Setting {
 		return $keys;
 	}
 
- 	/**
- 	 * Generic placeholder names for all keys.
- 	 * Actual key names may be post_type specific.
- 	 *
- 	 * @return  array  Placeholder key names.
- 	 */
+	/**
+	 * Get the post type to use to swap placeholders and build key names.
+	 *
+	 * @return  string  The post type name, or empty string.
+	 */
+	public function post_type() {
+		$post_type = '';
+		if ( is_singular() ) {
+			$post_type = get_post_type();
+			if ( ! $post_type ) {
+				$post_type = get_query_var( 'post_type' );
+			}
+		}
+		elseif ( mai_is_content_archive() ) {
+			$post_type = mai_get_archive_post_type();
+		}
+		return $post_type;
+	}
+
+	/**
+	 * Generic placeholder names for all keys.
+	 * Actual key names may be post_type specific.
+	 *
+	 * Keys that are used for all post types, including post/page, have post_type specific keys.
+	 *
+	 * @return  array  Placeholder key names.
+	 */
 	public function placeholders() {
 		return array(
+			'enable_sticky_header',
+			'enable_shrink_header',
+			'footer_widget_count',
+			'mobile_menu_style',
+			'enable_banner_area',
+			'banner_background_color',
 			'banner_id',
-			'hide_banner',                          // Archive (Main)
-			'banner_disable_post_type',             // Singular
-			'banner_disable_taxonomies_post_type',  // Archives (Taxo)
-			'banner_featured_image_post_type',      // Singular
-			'layout_archive_post_type',             // Archives
-			'layout_post_type',                     // Singular
-			'singular_image_post_type',             // Singular
-			'remove_meta_post_type',                // Singular
+			'banner_id_post_type',
+			'banner_overlay',
+			'banner_inner',
+			'banner_height',
+			'banner_content_width',
+			'banner_align_text',
+			'hide_banner',
+			'banner_disable_post_type',
+			'banner_disable_taxonomies_post_type',
+			'banner_featured_image_post_type',
+			'layout_archive_post_type',
+			'layout_post_type',
+			'layout_archive',
+			'site_layout',
+			'singular_image_post_type',
+			'mai_hide_featured_image',
+			'remove_meta_post_type',
 			'enable_content_archive_settings',
 			'columns',
 			'content_archive',
@@ -101,10 +146,148 @@ class Mai_Setting {
 			'image_alignment',
 			'more_link',
 			'remove_loop',
-			'remove_meta',
 			'posts_per_page',
 			'posts_nav',
 		);
+	}
+
+	/**
+	 * This should check each key individually.
+	 * Get the first value, then the hierarchy or post-type.
+	 * Maybe get fallback here, or in another method.
+	 *
+	 * @return [type] [description]
+	 */
+	public function get_value() {
+		switch ( $this->placeholder ) {
+			case 'enable_sticky_header':
+				$value = genesis_get_option( $this->key );
+				break;
+			case 'enable_shrink_header':
+				$value = genesis_get_option( $this->key );
+				break;
+			case 'footer_widget_count':
+				$value = genesis_get_option( $this->key );
+				break;
+			case 'mobile_menu_style':
+				$value = genesis_get_option( $this->key );
+				break;
+			case 'enable_banner_area':
+				$value = genesis_get_option( $this->key );
+				break;
+			case 'banner_background_color':
+				$value = genesis_get_option( $this->key );
+				break;
+			case 'banner_id':
+				$value = '';
+				break;
+			case 'banner_id_post_type':
+				$value = '';
+				break;
+			case 'banner_overlay':
+				$value = '';
+				break;
+			case 'banner_inner':
+				$value = '';
+				break;
+			case 'banner_height':
+				$value = '';
+				break;
+			case 'banner_content_width':
+				$value = '';
+				break;
+			case 'banner_align_text':
+				$value = '';
+				break;
+			case 'hide_banner':
+				$value = '';
+				break;
+			case 'banner_disable_post_type':
+				$value = '';
+				break;
+			case 'banner_disable_taxonomies_post_type':
+				$value = '';
+				break;
+			case 'banner_featured_image_post_type':
+				$value = '';
+				break;
+			case 'layout_archive_post_type':
+				$value = '';
+				break;
+			case 'layout_post_type':
+				$value = '';
+				break;
+			case 'layout_archive':
+				$value = '';
+				break;
+			case 'site_layout':
+				$value = '';
+				break;
+			case 'singular_image_post_type':
+				$value = '';
+				break;
+			case 'mai_hide_featured_image':
+				$value = '';
+				break;
+			case 'remove_meta_post_type':
+				$value = '';
+				break;
+			case 'enable_content_archive_settings':
+				$value = '';
+				break;
+			case 'columns':
+				$value = '';
+				break;
+			case 'content_archive':
+				$value = '';
+				break;
+			case 'content_archive_limit':
+				$value = '';
+				break;
+			case 'content_archive_thumbnail':
+				$value = '';
+				break;
+			case 'image_location':
+				$value = '';
+				break;
+			case 'image_size':
+				$value = '';
+				break;
+			case 'image_alignment':
+				$value = '';
+				break;
+			case 'more_link':
+				$value = '';
+				break;
+			case 'remove_loop':
+				$value = '';
+				break;
+			case 'posts_per_page':
+				$value = '';
+				break;
+			case 'posts_nav':
+				$value = '';
+				break;
+			default:
+				$value = null;
+			break;
+		}
+	}
+
+	public function singular_meta() {
+		$keys = array(
+			'hide_banner',
+			'mai_hide_featured_image',
+		);
+		return in_array( $this->placeholder, $keys ) ? true : false;
+	}
+
+	public function singular_option() {
+		$keys = array(
+			'banner_id_post_type',
+			'banner_disable_post_type',
+		);
+		return in_array( $this->placeholder, $keys ) ? true : false;
 	}
 
 	/**
@@ -121,20 +304,7 @@ class Mai_Setting {
 			'remove_loop',
 			'enable_content_archive_settings',
 		);
-		return in_array( $this->key, $keys ) ? true : false;
-	}
-
-	/**
-	 * Check the keys that need a fallback.
-	 * Most keys need a fallback, so we'll check against the ones the don't.
-	 *
-	 * @return  bool
-	 */
-	public function fallback() {
-		$keys = array(
-			'posts_per_page',
-		)
-		return ! in_array( $this->key, $keys ) ? true : false;
+		return in_array( $this->placeholder, $keys ) ? true : false;
 	}
 
 	/**
@@ -155,27 +325,48 @@ class Mai_Setting {
 			'posts_nav',
 			'posts_per_page',
 		);
-		return in_array( $this->key, $keys ) ? true : false;
+		return in_array( $this->placeholder, $keys ) ? true : false;
 	}
 
-	public function value( $key ) {
+	/**
+	 * Check the keys that need a fallback.
+	 * Most keys need a fallback, so we'll check against the ones the don't.
+	 *
+	 * @return  bool
+	 */
+	public function fallback() {
+		$keys = array(
+			'posts_per_page',
+		)
+		return ! in_array( $this->placeholder, $keys ) ? true : false;
+	}
+
+	public function value() {
 
 		$value = null;
 
 		// Single post/page/cpt.
 		if ( is_singular() ) {
-
+			if ( $this->singular_meta ) {
+				$value = get_post_meta( get_the_ID(), $this->key, true );
+			}
 		}
 
 		// Blog.
 		elseif ( is_home() ) {
 
-			// If direct and blog is a static page.
-			if ( $this->direct && ( $posts_page_id = get_option( 'page_for_posts' ) ) ) {
-				return get_post_meta( $posts_page_id, $key, true );
+			// If singular meta and static blog page.
+			if ( $this->singular_meta && ( $posts_page_id = get_option( 'page_for_posts' ) ) ) {
+				$value = get_post_meta( $posts_page_id, $this->key, true );
+			} else {
+				$value = genesis_get_option( $this->key );
 			}
 
-			$value = genesis_get_option( $key );
+			// If direct.
+			if ( $this->direct ) {
+				return $value;
+			}
+
 		}
 
 		// Term archive.
@@ -191,13 +382,14 @@ class Mai_Setting {
 			 */
 			if ( $queried_object ) {
 
-				$term_meta = get_term_meta( $queried_object->term_id, $key, true );
+				// Save as variable for direct call.
+				$term_meta = get_term_meta( $queried_object->term_id, $this->key, true );
 
 				if ( $this->direct ) {
 					return $term_meta;
 				}
 
-				// If not checking, or checking and is enabled.
+				// If not checking, or checking and is enabled, use as value.
 				if ( ! $this->check || ( $this->check && (bool) get_term_meta( $queried_object->term_id, 'enable_content_archive_settings', true ) ) ) {
 					$value = $term_meta;
 				}
@@ -206,26 +398,27 @@ class Mai_Setting {
 				if ( ! $value ) {
 
 					// Get hierarchical taxonomy term meta.
-					$value = $this->get_term_meta_value_in_hierarchy( $queried_object, $key, $this->check );
+					$value = $this->get_term_meta_value_in_hierarchy( $queried_object, $this->key, $this->check );
 
-					// If no value and 'post' is not the archive taxonomy, and not checking for content archive settings enabled or checking and they are enabled.
-					if ( ! $value && ( 'post' !== $this->post_type ) && ( ! $this->check || ( $this->check && (bool) genesis_get_cpt_option( 'enable_content_archive_settings', $this->post_type ) ) ) ) {
-						$value = genesis_get_cpt_option( $key, $this->post_type );
+					// If no value and post type has settings, and not checking for content archive settings enabled or checking and they are enabled.
+					if ( ! $value && in_array( $this->post_type, genesis_get_cpt_archive_types_names() ) && ( ! $this->check || ( $this->check && (bool) genesis_get_cpt_option( 'enable_content_archive_settings', $this->post_type ) ) ) ) {
+						$value = genesis_get_cpt_option( $this->key, $this->post_type );
 					}
 				}
 			}
 		}
 
-		// CPT archive.
-		// elseif ( is_post_type_archive() && post_type_supports( $this->post_type, 'mai-cpt-settings' ) ) {
-		elseif ( is_post_type_archive() ) {
+		// CPT archive. Need to check for 'mai-cpt-settings' otherwise it won't have any settings to check.
+		elseif ( is_post_type_archive() && post_type_supports( $this->post_type, 'mai-cpt-settings' ) ) {
 
-			$post_type_option = genesis_get_cpt_option( $key );
+			// Save as variable for direct call.
+			$post_type_option = genesis_get_cpt_option( $this->key );
 
 			if ( $this->direct ) {
 				return $post_type_option;
 			}
 
+			// If not checking, or checking and is enabled, use as value.
 			if ( ! $this->check || ( $this->check && (bool) genesis_get_cpt_option( 'enable_content_archive_settings', $this->post_type ) ) ) {
 				$value = $post_type_option;
 			}
@@ -233,11 +426,20 @@ class Mai_Setting {
 
 		// Author archive.
 		elseif ( is_author() ) {
-			$value = get_the_author_meta( $key, get_query_var( 'author' ) );
+
+			$author_meta = get_the_author_meta( $this->key, get_query_var( 'author' ) );
+
+			if ( $this->direct ) {
+				return $author_meta;
+			}
+
+			if ( ! $this->check || ( $this->check && (bool) get_the_author_meta( 'enable_content_archive_settings', get_query_var( 'author' ) ) ) ) {
+				$value = $author_meta;
+			}
 		}
 
-		// Maybe get fallback.
-		$value = ( ! $value && $this->fallback ) ? genesis_get_option( $key ) : $value;
+		// Maybe get fallback (Does this work for search results?).
+		$value = ( ( null !== $value ) && $this->fallback ) ? genesis_get_option( $this->key ) : $value;
 
 		return $value;
 	}
@@ -392,113 +594,6 @@ class Mai_Setting {
 			return $original_value;
 		}
 
-	}
-
-
-
-
-	/**
-	 * THIS IS ALL OLD AND FOR REFERENCE TO COMPARE AND MAKE SURE I GOT IT ALL.
-	 */
-
-
-	/**
-	 * Get an archive setting value with fallback.
-	 *
-	 * @param   string  $key                        The field key to check.
-	 * @param   bool    $check_for_archive_setting  Whether to check if custom archive settings are enabled.
-	 * @param   mixed   $fallback                   The value to fall back to if we don't get a value via setting.
-	 *
-	 * @return  mixed
-	 */
-	function get_archive_setting_by_template( $key, $check_for_archive_setting, $fallback = false ) {
-
-		$meta = null;
-
-		// Blog.
-		if ( is_home() ) {
-			$meta = genesis_get_option( $key );
-		}
-
-		// Taxonomy archive.
-		elseif ( is_category() || is_tag() || is_tax() ) {
-
-			$queried_object = get_queried_object();
-
-			/**
-			 * Check if we have an object.
-			 * We hit an issue when permlinks have /%category%/ in the base and a user
-			 * 404's via top level URL like example.com/non-existent-slug.
-			 * This returned true for is_category() and blew things up.
-			 */
-			if ( $queried_object ) {
-
-				// If checking enabled and is enabled.
-				if ( ! $check_for_archive_setting || ( $check_for_archive_setting && $enabled = get_term_meta( $queried_object->term_id, 'enable_content_archive_settings', true ) ) ) {
-					$meta = get_term_meta( $queried_object->term_id, $key, true );
-				}
-
-				// If no meta
-				if ( ! $meta ) {
-
-					// Get hierarchical taxonomy term meta
-					$meta = $this->get_term_meta_value_in_hierarchy( $queried_object, $key, $check_for_archive_setting );
-
-					// If no meta
-					if ( ! $meta ) {
-
-						// If post or page taxonomy.
-						if ( is_category() || is_tag() ) {
-							$meta = genesis_get_option( $key );
-						}
-
-						// Custom taxonomy archive.
-						else {
-							$post_type = mai_get_archive_post_type();
-							if ( $post_type ) {
-								if ( ! $check_for_archive_setting || ( $check_for_archive_setting && $enabled = genesis_get_cpt_option( 'enable_content_archive_settings', $post_type ) ) ) {
-									if ( 'post' === $post_type ) {
-										$meta = genesis_get_option( $key );
-									} else {
-										$meta = genesis_get_cpt_option( $key, $post_type );
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		/**
-		 * CPT archive.
-		 * This may be called too early to use get_post_type().
-		 */
-		elseif ( is_post_type_archive() && post_type_supports( mai_get_archive_post_type(), 'mai-cpt-settings' ) ) {
-			if ( ! $check_for_archive_setting || ( $check_for_archive_setting && $enabled = genesis_get_cpt_option( 'enable_content_archive_settings' ) ) ) {
-				$meta = genesis_get_cpt_option( $key );
-			}
-		}
-
-		// Author archive.
-		elseif ( is_author() ) {
-			if ( ! $check_for_archive_setting || ( $check_for_archive_setting && $enabled = get_the_author_meta( 'enable_content_archive_settings', get_query_var( 'author' ) ) ) ) {
-				$meta = get_the_author_meta( $key, get_query_var( 'author' ) );
-			}
-		}
-
-		// If we have meta, return it
-		if ( null !== $meta ) {
-			return $meta;
-		}
-
-		// If we have a fallback, return it
-		elseif ( $fallback ) {
-			return $fallback;
-		}
-
-		// Return
-		return null;
 	}
 
 }
