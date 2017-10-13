@@ -69,7 +69,7 @@ class Mai_Setting {
 	public function keys() {
 		$keys = array();
 		foreach( $this->placeholders as $placeholder ) {
-			$keys[ $placeholder ] = str_replace( 'post_type', $this->name, $placeholder );
+			$keys[ $placeholder ] = str_replace( 'post_type', $this->post_type, $placeholder );
 		}
 		return $keys;
 	}
