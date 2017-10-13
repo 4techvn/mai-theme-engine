@@ -10,34 +10,36 @@ function mai_is_content_archive() {
 
 	global $wp_query;
 
+	// If not main query.
 	if ( ! $wp_query->is_main_query() ) {
 		return false;
 	}
-
-	$is_archive = false;
-
-	// Blog
+	// If is archive.
+	if ( is_archive() ) {
+		return true;
+	}
+	// Blog.
 	if ( is_home() ) {
-		$is_archive = true;
+		return true;
 	}
-	// Term archive
-	elseif ( is_category() || is_tag() || is_tax() ) {
-		$is_archive = true;
+	// Term archive.
+	if ( is_category() || is_tag() || is_tax() ) {
+		return true;
 	}
-	// CPT archive - this may be called too early to use get_post_type()
-	elseif ( is_post_type_archive() ) {
-		$is_archive = true;
+	// CPT archive.
+	if ( is_post_type_archive() ) {
+		return true;
 	}
-	// Author archive
-	elseif ( is_author() ) {
-		$is_archive = true;
+	// Author archive.
+	if ( is_author() ) {
+		return true;
 	}
-	// Search results
-	elseif ( is_search() ) {
-		$is_archive = true;
+	// Search results.
+	if ( is_search() ) {
+		return true;
 	}
-
-	return $is_archive;
+	// Nope.
+	return false;
 }
 
 function mai_get_archive_post_type() {

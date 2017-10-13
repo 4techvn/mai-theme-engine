@@ -21,7 +21,6 @@
  * 'image_size'
  * 'image_alignment'
  * 'more_link'
- * 'more_link_text'
  * 'remove_meta'
  * 'posts_per_page'
  * 'posts_nav'

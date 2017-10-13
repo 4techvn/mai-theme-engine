@@ -33,13 +33,13 @@ function mai_update_database_version() {
 
 function mai_upgrade_1170() {
 	// remove_meta needs to be remove_meta_{post_type} - page shouldn't have because no entry-meta support, though it may be added.
-	// banner_featured_image (array containing 'post' and/or 'page') needs to be banner_featured_image_{post_type}
-	// banner_disable_post_types (array containing 'post' and/or 'page') needs to be banner_disable_{post_type}
-	// banner_disable_taxonomies (array containing registered post taxonomies) needs to be banner_disable_taxonomies_{post_type}
+	// banner_featured_image (array containing 'post' and/or 'page') needs to be banner_featured_image_{post_type}.
+	// banner_disable_post_types (array containing 'post' and/or 'page') needs to be banner_disable_{post_type}.
+	// banner_disable_taxonomies (array containing registered post taxonomies) needs to be banner_disable_taxonomies_{post_type}.
 }
 
 /**
- * Update banner_height to 'md' if banner image is set.
+ * Update banner_height to 'lg' if banner image is set.
  *
  * @since 1.1.6.1
  */

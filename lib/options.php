@@ -120,7 +120,7 @@ function mai_get_default_options() {
 		'image_location'            => 'before_title',
 		'more_link'                 => 0,
 		'more_link_text'            => '',
-		'remove_meta'               => array(),
+		// 'remove_meta'               => array(),
 		'posts_per_page'            => get_option( 'posts_per_page' ),
 		// Mai Singular.
 		// 'singular_image_page'       => 1,
@@ -188,7 +188,7 @@ function mai_get_default_cpt_options( $post_type ) {
 		'image_alignment'                 => mai_get_default_option( 'image_alignment' ),
 		'more_link'                       => mai_get_default_option( 'more_link' ),
 		'more_link_text'                  => mai_get_default_option( 'more_link_text' ),
-		'remove_meta'                     => mai_get_default_option( 'remove_meta' ),
+		// 'remove_meta'                     => mai_get_default_option( 'remove_meta' ),
 		'posts_per_page'                  => mai_get_default_option( 'posts_per_page' ),
 		'posts_nav'                       => mai_get_default_option( 'posts_nav' ),
 	);

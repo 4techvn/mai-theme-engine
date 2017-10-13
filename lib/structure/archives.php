@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Add the mai_before_flex_loop hook when appropriate.
+ * Add the mai_before_content_archive hook when appropriate.
  *
  * @return void.
  */
 add_action( 'genesis_before_while', 'mai_add_before_content_archive_hook', 100 );
 function mai_add_before_content_archive_hook() {
 
-	// Bail if not a flex loop.
+	// Bail if not a content archive.
 	if ( ! mai_is_content_archive() ) {
 		return;
 	}
@@ -56,7 +56,7 @@ function mai_add_after_flex_loop_hook() {
 add_action( 'genesis_after_endwhile', 'mai_add_after_content_archive_hook' );
 function mai_add_after_content_archive_hook() {
 
-	// Bail if not a flex loop.
+	// Bail if not a content archive.
 	if ( ! mai_is_content_archive() ) {
 		return;
 	}
@@ -80,7 +80,6 @@ function mai_do_blog_description() {
 	// Echo the content.
 	echo apply_filters( 'the_content', get_post( $posts_page )->post_content );
 }
-
 
 /**
  * Add term description before custom taxonomy loop.
@@ -111,16 +110,11 @@ function mai_do_term_description() {
  *
  * @return  void.
  */
-add_action( 'genesis_before_loop', 'mai_remove_content_archive_loop' );
+// add_action( 'genesis_before_loop', 'mai_remove_content_archive_loop' );
 function mai_remove_content_archive_loop() {
 
 	// Bail if not a content archive.
 	if ( ! mai_is_content_archive() ) {
-		return;
-	}
-
-	$post_type = new Mai_Post_Type( mai_get_archive_post_type() );
-	if ( ! $post_type->has_setting( 'remove_loop' ) ) {
 		return;
 	}
 
@@ -181,16 +175,21 @@ function mai_remove_woo_content_archive_loop() {
  *
  * @return void.
  */
-add_filter( 'pre_get_posts', 'mai_content_archive_posts_per_page' );
+// add_filter( 'pre_get_posts', 'mai_content_archive_posts_per_page' );
 function mai_content_archive_posts_per_page( $query ) {
 
-	// Bail if not the main query
+	// Bail if not the main query.
 	if ( ! $query->is_main_query() || is_admin() || is_singular() ) {
 		return;
 	}
 
-	// Bail if not a content archive
+	// Bail if not a content archive.
 	if ( ! mai_is_content_archive() ) {
+		return;
+	}
+
+	// Bail if no setting.
+	if ( ! mai_archive_has_setting( 'posts_per_page' ) ) {
 		return;
 	}
 
@@ -214,7 +213,7 @@ function mai_content_archive_posts_per_page( $query ) {
  *
  * @return  void
  */
-add_action( 'mai_before_flex_loop', 'mai_do_flex_loop' );
+// add_action( 'mai_before_flex_loop', 'mai_do_flex_loop' );
 function mai_do_flex_loop() {
 
 	// Flex row wrap
@@ -224,9 +223,8 @@ function mai_do_flex_loop() {
 	// Get the archive column count
 	$columns = mai_get_columns();
 
-	// $align         = mai_get_archive_setting( 'content_archive_align' );
-	$img_location  = mai_get_archive_setting( 'image_location', true, genesis_get_option( 'image_location' ) );
-	$img_alignment = mai_get_archive_setting( 'image_alignment', true, genesis_get_option( 'image_alignment' ) );
+	$img_location  = mai_archive_has_setting( 'image_location' ) ? mai_get_archive_setting( 'image_location', true, genesis_get_option( 'image_location' ) ) : '';
+	$img_alignment = mai_archive_has_setting( 'image_alignment' ) ? mai_get_archive_setting( 'image_alignment', true, genesis_get_option( 'image_alignment' ) ) : '';
 
 	// Create an anonomous function using the column count
 	$flex_classes = function( $classes ) use ( $columns, $img_location, $img_alignment ) {
@@ -344,6 +342,54 @@ function mai_do_woo_product_archive_image() {
 	}
 }
 
+// add_filter( 'genesis_options', 'mai_do_content_archive_archive_options' );
+function mai_do_content_archive_archive_options( $options ) {
+
+	// Bail if not a content archive.
+	if ( ! mai_is_content_archive() ) {
+		return $options;
+	}
+
+	// If has setting.
+	if ( mai_archive_has_setting( 'content_archive' ) ) {
+
+		$content_archive = mai_get_archive_setting( 'content_archive', true, genesis_get_option( 'content_archive' ) );
+
+		if ( 'none' === $content_archive ) {
+			$options['content_archive']       = 'full';
+			$options['content_archive_limit'] = 0;
+		} else {
+			$options['content_archive'] = $content_archive;
+			if ( mai_archive_has_setting( 'content_archive_limit' ) ) {
+				$options['content_archive_limit'] = $content_archive;
+			}
+		}
+	}
+
+	// Featured Image.
+	if ( mai_archive_has_setting( 'content_archive_thumbnail' ) ) {
+		$options['content_archive_thumbnail'] = mai_get_archive_setting( 'content_archive_thumbnail', true, genesis_get_option( 'content_archive_thumbnail' ) );
+	}
+
+	// Image Size.
+	if ( mai_archive_has_setting( 'image_size' ) ) {
+		$options['image_size'] = mai_get_archive_setting( 'image_size', true, genesis_get_option( 'image_size' ) );
+	}
+
+	// Image Alignment.
+	if ( mai_archive_has_setting( 'image_alignment' ) ) {
+		$options['image_alignment'] = mai_get_archive_setting( 'image_alignment', true, genesis_get_option( 'image_alignment' ) );
+	}
+
+	// Posts Nav.
+	if ( mai_archive_has_setting( 'posts_nav' ) ) {
+		$options['posts_nav'] = mai_get_archive_setting( 'posts_nav', true, genesis_get_option( 'posts_nav' ) );
+	}
+
+	return $options;
+}
+
+
 /**
  * Do the content archive options.
  * Hook in before the loop, get the variables first,
@@ -354,8 +400,8 @@ function mai_do_woo_product_archive_image() {
  *
  * @return  void
  */
-add_action( 'mai_before_content_archive', 'mai_do_content_archive_archive_options' );
-function mai_do_content_archive_archive_options() {
+// add_action( 'mai_before_content_archive', 'mai_do_content_archive_archive_options_og' );
+function mai_do_content_archive_archive_options_og() {
 
 	$content_archive_thumbnail = mai_get_archive_setting( 'content_archive_thumbnail', true, genesis_get_option( 'content_archive_thumbnail' ) );
 	$image_size                = mai_get_archive_setting( 'image_size', true, genesis_get_option( 'image_size' ) );

@@ -126,7 +126,8 @@ final class Mai_Pro_Engine {
 	private function setup() {
 
 		// Classes.
-		foreach ( glob( MAI_PRO_ENGINE_LIB_DIR . 'classes/*.php' ) as $file ) { include_once $file; }
+		// foreach ( glob( MAI_PRO_ENGINE_LIB_DIR . 'classes/*.php' ) as $file ) { include_once $file; }
+		spl_autoload_register( array( $this, 'include_classes' ) );
 
 		// Includes (Vendor).
 		require_once MAI_PRO_ENGINE_INCLUDES_DIR . 'CMB2/init.php';
@@ -155,7 +156,7 @@ final class Mai_Pro_Engine {
 				'primary'      => __( 'Primary Menu', 'mai-pro-engine' ),
 				'header_left'  => __( 'Header Left Menu', 'mai-pro-engine' ),
 				'header_right' => __( 'Header Right Menu', 'mai-pro-engine' ),
-				'secondary'    => __( 'Footer Menu', 'mai-pro-engine' ),
+				'secondary'    => __( 'Secondary Menu', 'mai-pro-engine' ),
 				'mobile'       => __( 'Mobile Menu', 'mai-pro-engine' ),
 			) );
 
@@ -313,6 +314,27 @@ final class Mai_Pro_Engine {
 
 		}, 8 );
 
+	}
+
+	/**
+	 * Registered autoload function.
+	 * Used to load class files automatically if they are in the provided array.
+	 *
+	 * @access public
+	 * @param string $class
+	 * @return void
+	 */
+	function include_classes( $class ) {
+		$classes = array();
+		// if ( isset( $classes[$class] ) ) {
+			// require_once( GENESIS_AUTHOR_PRO_CLASSES_DIR . $classes[$class] );
+		// }
+		foreach ( glob( MAI_PRO_ENGINE_LIB_DIR . 'classes/*.php' ) as $file ) {
+			$classes[ $file ] = $file;
+		}
+		if ( isset( $classes[$class] ) ) {
+			include_once $classes[ $class ];
+		}
 	}
 
 	function deactivate_plugin() {

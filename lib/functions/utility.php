@@ -187,7 +187,8 @@ function mai_get_archive_setting_by_template( $key, $check_for_archive_setting, 
 }
 
 function mai_archive_has_setting( $key ) {
-
+	$post_type = new Mai_Post_Type( mai_get_archive_post_type() );
+	return $post_type->has_setting( $key );
 }
 
 /**
