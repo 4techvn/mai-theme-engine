@@ -1,5 +1,46 @@
 <?php
 
+/**
+ * Get setting by placeholder.
+ * This accounts for post_type specific key names and all fallbacks. So easy and convenient!
+ *
+ * @param   string  $placeholder  Acceptable keys:
+ *
+enable_sticky_header
+enable_shrink_header
+footer_widget_count
+mobile_menu_style
+enable_banner_area
+banner_background_color
+banner_id (handles other keys)
+banner_overlay
+banner_inner
+banner_height
+banner_content_width
+banner_align_text
+hide_banner
+banner_disable_post_type
+banner_disable_taxonomies_post_type
+banner_featured_image_post_type
+layout (handles other keys)
+singular_image_post_type (should we just use 'singular_image' ????)
+mai_hide_featured_image
+remove_meta_post_type
+enable_content_archive_settings
+columns
+content_archive
+content_archive_limit
+content_archive_thumbnail
+image_location
+image_size
+image_alignment
+more_link
+remove_loop
+posts_per_page
+posts_nav
+ *
+ * @return  [type]              [description]
+ */
 function mai_get_setting( $placeholder ) {
 
 	// Allow devs to short circuit this function.
@@ -132,8 +173,8 @@ class Mai_Setting {
 			'layout_archive_post_type',
 			'layout_post_type',
 			'layout_archive',
-			'site_layout',
-			'singular_image_post_type',
+			'site_layout', // This is just 'layout' now?
+			'singular_image_post_type', // This may end up being just 'singular image'??
 			'mai_hide_featured_image',
 			'remove_meta_post_type',
 			'enable_content_archive_settings',
@@ -150,6 +191,161 @@ class Mai_Setting {
 			'posts_nav',
 		);
 	}
+
+	public function direct_options() {
+		$keys = array(
+			// Global.
+			'enable_sticky_header',
+			'enable_shrink_header',
+			'footer_widget_count',
+			'mobile_menu_style',
+			'enable_banner_area',
+			'banner_background_color',
+			'banner_overlay',
+			'banner_inner',
+			'banner_height',
+			'banner_content_width',
+			'banner_align_text',
+			// Singular only.
+			'banner_featured_image_post_type',
+			'singular_image_post_type',
+		);
+		return in_array( $this->placeholder, $keys );
+	}
+
+	public function banner_id() {
+		return ( 'banner_id' === $this->key );
+	}
+
+	public function layout() {
+		return ( 'layout' === $this->key );
+	}
+
+	public function archive_settings() {
+		$keys = array(
+			'columns', // Should this have its own?!?!?!?
+			'content_archive',
+			'content_archive_limit',
+			'content_archive_thumbnail',
+			'image_location',
+			'image_size',
+			'image_alignment',
+			'more_link',
+			'remove_meta',
+			'posts_nav',
+			'posts_per_page',
+		);
+		return in_array( $this->placeholder, $keys );
+	}
+
+	public function tricky_settings() {
+		$keys = array(
+			'hide_banner',
+			'banner_disable_post_type',
+			'banner_disable_taxonomies_post_type',
+			'layout_archive_post_type',
+			'layout_archive',
+			'mai_hide_featured_image',
+			'remove_meta_post_type',
+		);
+		return in_array( $this->placeholder, $keys );
+	}
+
+	public function value() {
+		$value = null;
+		if ( $this->direct_options() ) {
+			$value = genesis_get_option( $this->key );
+		}
+		elseif ( $this->banner_id() ) {
+			$value = $this->get_banner_id();
+		}
+		elseif ( $this->site_layout() ) {
+			$value = $this->get_layout();
+		}
+		elseif ( $this->archive_settings() ) {
+			$value = $this->get_archive_setting();
+		}
+		return $value;
+	}
+
+	public function get_banner_id() {
+		// Do all banner logic with fallbacks and return the banner id.
+	}
+
+	public function get_layout() {
+		// Do all layout logic with fallbacks and return the layout.
+	}
+
+	public function get_archive_setting() {
+
+		$value = null;
+
+		// Blog.
+		if ( is_home() ) {
+			$value = genesis_get_option( $this->key );
+		}
+
+		// Term archive.
+		elseif ( is_category() || is_tag() || is_tax() ) {
+
+			$queried_object = get_queried_object();
+
+			/**
+			 * Check if we have an object.
+			 * We hit an issue when permlinks have /%category%/ in the base and a user
+			 * 404's via top level URL like example.com/non-existent-slug.
+			 * This returned true for is_category() and blew things up.
+			 */
+			if ( $queried_object ) {
+
+				// If not checking, or checking and is enabled, use as value.
+				if ( enable_content_archive_settings() ) {
+					$value = get_term_meta( $queried_object->term_id, $this->key, true );
+				} else {
+
+					// Get hierarchical taxonomy term meta.
+					$value = $this->get_term_meta_value_in_hierarchy( $queried_object, $this->key, $this->check );
+
+					// If no value.
+					if ( null === $value ) {
+						// If post type has settings and custom archive settings enabled.
+						if ( in_array( $this->post_type, $this->cpts ) && enable_content_archive_settings() ) {
+							$value = genesis_get_cpt_option( $this->key, $this->post_type );
+						}
+					}
+				}
+			}
+		}
+
+		// CPT archive. Need to check for 'mai-cpt-settings' otherwise it won't have any settings to check.
+		elseif ( is_post_type_archive() && post_type_supports( $this->post_type, 'mai-cpt-settings' ) && enable_content_archive_settings() ) {
+			$value = genesis_get_cpt_option( $this->key );
+		}
+
+		// Author archive.
+		elseif ( is_author() && enable_content_archive_settings() ) {
+			$value = get_the_author_meta( $this->key, get_query_var( 'author' ) );
+		}
+
+		// Maybe get fallback (Does this work for search results?).
+		return ( null !== $value ) ? genesis_get_option( $this->key ) : $value;
+	}
+
+	public function enable_content_archive_settings() {
+		if ( is_category() || is_tag() || is_tax() ) {
+			return (bool) get_term_meta( $queried_object->term_id, 'enable_content_archive_settings', true );
+		}
+		elseif ( is_post_type_archive() && post_type_supports( $this->post_type, 'mai-cpt-settings' ) ) {
+			return (bool) genesis_get_cpt_option( 'enable_content_archive_settings', $this->post_type );
+		}
+		elseif ( is_author() ) {
+			return (bool) get_the_author_meta( 'enable_content_archive_settings', get_query_var( 'author' ) );
+		}
+		return false;
+	}
+
+
+
 
 	/**
 	 * This should check each key individually.
@@ -325,7 +521,17 @@ class Mai_Setting {
 			'posts_nav',
 			'posts_per_page',
 		);
-		return in_array( $this->placeholder, $keys ) ? true : false;
+		// If not an archive layout setting, no check.
+		if ( ! in_array( $this->placeholder, $keys ) ) {
+			return false;
+		}
+		// If blog, post category/tag, or custom taxo on post/page, no check.
+		// NOPE: Need to check for term specific settings. Argh.
+		// if ( is_home() || is_category() || is_tag() || ( is_tax() && in_array( $this->post_type, array( 'post', 'page' ) ) ) ) {
+		// 	return false;
+		// }
+		// Check.
+		return true;
 	}
 
 	/**
@@ -341,7 +547,7 @@ class Mai_Setting {
 		return ! in_array( $this->placeholder, $keys ) ? true : false;
 	}
 
-	public function value() {
+	public function value_og() {
 
 		$value = null;
 
@@ -401,7 +607,7 @@ class Mai_Setting {
 					$value = $this->get_term_meta_value_in_hierarchy( $queried_object, $this->key, $this->check );
 
 					// If no value and post type has settings, and not checking for content archive settings enabled or checking and they are enabled.
-					if ( ! $value && in_array( $this->post_type, genesis_get_cpt_archive_types_names() ) && ( ! $this->check || ( $this->check && (bool) genesis_get_cpt_option( 'enable_content_archive_settings', $this->post_type ) ) ) ) {
+					if ( ! $value && in_array( $this->post_type, $this->cpts ) ) && ( ! $this->check || ( $this->check && (bool) genesis_get_cpt_option( 'enable_content_archive_settings', $this->post_type ) ) ) ) {
 						$value = genesis_get_cpt_option( $this->key, $this->post_type );
 					}
 				}
@@ -472,7 +678,8 @@ class Mai_Setting {
 		}
 		$term_ancestors = $this->get_hierarchichal_term_metadata( $term, $meta_keys );
 		if ( false === $term_ancestors ) {
-			return;
+			// Nada.
+			return null;
 		}
 		// Loop through the objects until you find one that has a meta value.
 		foreach( (array) $term_ancestors as $term_ancestor ) {
@@ -488,8 +695,8 @@ class Mai_Setting {
 				return $term_ancestor->metadata1;
 			}
 		}
-		// Whoops, didn't find one with a value for that meta key.
-		return;
+		// Nada.
+		return null;
 	}
 
 	/**
