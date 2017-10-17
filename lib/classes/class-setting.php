@@ -173,7 +173,7 @@ class Mai_Setting {
 			'layout_archive_post_type',
 			'layout_post_type',
 			'layout_archive',
-			'site_layout', // This is just 'layout' now?
+			'site_layout',              // This is just 'layout' now?
 			'singular_image_post_type', // This may end up being just 'singular image'??
 			'mai_hide_featured_image',
 			'remove_meta_post_type',
@@ -208,7 +208,7 @@ class Mai_Setting {
 			'banner_align_text',
 			// Singular only.
 			'banner_featured_image_post_type',
-			'singular_image_post_type',
+			'singular_image_post_type',        // This may end up being just 'singular image'??
 		);
 		return in_array( $this->placeholder, $keys );
 	}
@@ -259,7 +259,7 @@ class Mai_Setting {
 		elseif ( $this->banner_id() ) {
 			$value = $this->get_banner_id();
 		}
-		elseif ( $this->site_layout() ) {
+		elseif ( $this->layout() ) {
 			$value = $this->get_layout();
 		}
 		elseif ( $this->archive_settings() ) {
@@ -273,7 +273,78 @@ class Mai_Setting {
 	}
 
 	public function get_layout() {
-		// Do all layout logic with fallbacks and return the layout.
+
+		$layout = '';
+
+		$post_type_key = sprintf( 'layout_%s', $this->post_type );
+
+		// If home page.
+		if ( is_home() ) {
+			$layout = genesis_get_option( $post_type_key );
+			if ( ! $layout ) {
+				$layout = genesis_get_option( 'layout_archive' );
+			}
+		}
+
+		// If viewing a singular page, post, or CPT.
+		elseif ( is_singular() ) {
+			$layout = genesis_get_custom_field( '_genesis_layout', get_the_ID() );
+			if ( ! $layout ) {
+				$layout = genesis_get_option( $post_type_key );
+			}
+		}
+
+		// If viewing a post taxonomy archive.
+		elseif ( is_category() || is_tag() || is_tax() ) {
+
+			$queried_object = get_queried_object();
+
+			if ( $queried_object ) {
+
+					$layout = get_term_meta( $queried_object->term_id, 'layout', true );
+
+					if ( ! $layout ) {
+						$layout = $this->get_term_meta_value_in_hierarchy( $queried_object, $this->key, $this->check );
+					}
+
+					if ( ! $layout ) {
+						if ( in_array( $this->post_type, $this->cpts ) ) {
+							$layout = genesis_get_cpt_option( 'layout_archive', $this->post_type );
+						} else {
+							$layout = genesis_get_option( $post_type_key );
+						}
+					}
+
+					if ( ! $layout ) {
+						$layout = genesis_get_option( 'layout_archive' );
+					}
+				}
+			}
+		}
+
+		// If viewing a supported post type.
+		elseif ( is_post_type_archive() && post_type_supports( $this->post_type, 'mai-cpt-settings' ) ) {
+			$layout = genesis_get_cpt_option( 'layout_archive', $this->layout );
+			$layout = $layout ? $layout : genesis_get_option( 'layout_archive' );
+		}
+
+		// If viewing an author archive.
+		elseif ( is_author() ) {
+			$layout = get_the_author_meta( 'layout', (int) get_query_var( 'author' ) );
+			$layout = $layout ? $layout : genesis_get_option( 'layout_archive' );
+		}
+
+		// Pull the theme option.
+		if ( ! $layout ) {
+			$layout = genesis_get_option( 'site_layout' );
+		}
+
+		// Use default layout as a fallback, if necessary.
+		if ( ! genesis_get_layout( $layout ) ) {
+			$layout = genesis_get_default_layout();
+		}
+
+		return esc_attr( $site_layout );
 	}
 
 	public function get_archive_setting() {
