@@ -34,6 +34,7 @@ function mai_update_database_version() {
 function mai_upgrade_1170() {
 	// remove_meta needs to be remove_meta_{post_type} - page shouldn't have because no entry-meta support, though it may be added.
 	// banner_id stays, but need to banner_id_post for blog if static page and has a banner_id, then remove that metabox.
+	// genesis_get_cpt_option( 'banner_id', $post_type ) should save to banner_id_{post_type} if cpt archive banner_id has a value. (delete cpt archive value after?)
 	// hide_banner (what to do for post type archives?) is moving to individual post/page settings, so convert to hide_banner_{post_type}.
 	// banner_featured_image (array containing 'post' and/or 'page') needs to be banner_featured_image_{post_type}.
 	// banner_disable_post_types (array containing 'post' and/or 'page') needs to be banner_disable_{post_type} like already have for cpt settings.
@@ -42,6 +43,7 @@ function mai_upgrade_1170() {
 	// cpt archives 'layout' key needs to be 'layout_archive' now, just to match genesis-settings default
 
 	// remove layout and banner metaboxes from static blog page
+	// do we even need mai_is_banner_featured_image_enabled() anymore?
 }
 
 /**

@@ -745,6 +745,10 @@ function mai_is_admin_woo_shop_page() {
 	return false;
 }
 
+function mai_get_post_type_settings_post_type_names() {
+	return array_keys( mai_get_post_type_settings_post_types() );
+}
+
 /**
  * Filter the CPT's that get archive settings.
  * Add via:

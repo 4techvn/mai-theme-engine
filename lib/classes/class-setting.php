@@ -107,8 +107,11 @@ class Mai_Setting {
 	 *
 	 * @return  string  The actual key name.
 	 */
-	public function key() {
-		return $this->keys[ $this->placeholder ];
+	public function key( $placeholder = '' ) {
+		if ( empty( $placeholder ) ) {
+			$placeholder = $this->placeholder;
+		}
+		return $this->keys[ $placeholder ];
 	}
 
 	/**
@@ -251,6 +254,9 @@ class Mai_Setting {
 		return in_array( $this->placeholder, $keys );
 	}
 
+	/**
+	 * This could be a big switch of all the keys.
+	 */
 	public function value() {
 		$value = null;
 		if ( $this->direct_options() ) {
@@ -268,8 +274,89 @@ class Mai_Setting {
 		return $value;
 	}
 
+	/**
+	 * Get the banner image ID.
+	 *
+	 * First check immediate setting, then archive setting (if applicable), then fallback to default image.
+	 *
+	 * @return int|false
+	 */
 	public function get_banner_id() {
-		// Do all banner logic with fallbacks and return the banner id.
+
+		// Start of without an image
+		$image_id = false;
+
+		// Static front page.
+		if ( is_front_page() && $front_page_id = get_option( 'page_on_front' ) ) {
+			$image_id = $this->get_banner_id_by_post_id( $front_page_id );
+		}
+
+		// Static blog page.
+		elseif ( is_home() && $posts_page_id = get_option( 'page_for_posts' ) ) {
+			$image_id = $this->get_banner_id_by_post_id( $post_page_id );
+		}
+
+		// Single page/post/cpt, but not static front page or static home page.
+		elseif ( is_singular() ) {
+			$image_id = $this->get_banner_id_by_post_id( get_the_ID() );
+		}
+
+		// Term archive
+		elseif ( is_category() || is_tag() || is_tax() ) {
+			// If WooCommerce product category
+			if ( class_exists( 'WooCommerce' ) && is_tax( array( 'product_cat', 'product_tag' ) ) ) {
+				// Woo uses it's own image field/key
+				$image_id = get_term_meta( get_queried_object()->term_id, 'thumbnail_id', true );
+			} else {
+				$queried_object = get_queried_object();
+				if ( $queried_object ) {
+					$image_id = get_term_meta( $queried_object->term_id, $this->key, true );
+					if ( ! $image_id ) {
+						$image_id = $this->get_term_meta_value_in_hierarchy( $queried_object, $this->key, $this->check );
+					}
+				}
+			}
+		}
+
+		// CPT archive
+		elseif ( is_post_type_archive() && post_type_supports( get_post_type(), 'mai-cpt-settings' ) ) {
+			$image_id = genesis_get_cpt_option( $this->key );
+		}
+
+		// Author archive
+		elseif ( is_author() ) {
+			$image_id = get_the_author_meta( $this->key, get_query_var( 'author' ) );
+		}
+
+		// If no banner, try a post type default.
+		if ( ! $image_id ) {
+			$image_id = genesis_get_option( $this->key( 'banner_id_post_type' ) );
+		}
+
+		/**
+		 * If no banner, but we have a default,
+		 * use the default banner image.
+		 */
+		if ( ! $image_id ) {
+			if ( $default_id = genesis_get_option( $this->key ) ) {
+				$image_id = $default_id;
+			}
+		}
+
+		// Filter so devs can force a specific image ID
+		$image_id = apply_filters( 'mai_banner_image_id', $image_id );
+
+		return absint( $image_id );
+
+	}
+
+	public function get_banner_id_by_post_id( $post_id ) {
+		$image_id = get_post_meta( $post_id, $this->key, true );
+		// If no image and featured images as banner is enabled.
+		if ( ! $image_id && genesis_get_option( $this->key( 'banner_featured_image_post_type' ) ) ) {
+			$image_id = get_post_thumbnail_id( $post_id );
+		}
+		return $image_id;
 	}
 
 	public function get_layout() {
@@ -301,23 +388,22 @@ class Mai_Setting {
 
 			if ( $queried_object ) {
 
-					$layout = get_term_meta( $queried_object->term_id, 'layout', true );
+				$layout = get_term_meta( $queried_object->term_id, 'layout', true );
 
-					if ( ! $layout ) {
-						$layout = $this->get_term_meta_value_in_hierarchy( $queried_object, $this->key, $this->check );
-					}
+				if ( ! $layout ) {
+					$layout = $this->get_term_meta_value_in_hierarchy( $queried_object, $this->key, $this->check );
+				}
 
-					if ( ! $layout ) {
-						if ( in_array( $this->post_type, $this->cpts ) ) {
-							$layout = genesis_get_cpt_option( 'layout_archive', $this->post_type );
-						} else {
-							$layout = genesis_get_option( $post_type_key );
-						}
+				if ( ! $layout ) {
+					if ( in_array( $this->post_type, $this->cpts ) ) {
+						$layout = genesis_get_cpt_option( 'layout_archive', $this->post_type );
+					} else {
+						$layout = genesis_get_option( $post_type_key );
 					}
+				}
 
-					if ( ! $layout ) {
-						$layout = genesis_get_option( 'layout_archive' );
-					}
+				if ( ! $layout ) {
+					$layout = genesis_get_option( 'layout_archive' );
 				}
 			}
 		}

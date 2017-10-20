@@ -375,6 +375,8 @@ function mai_is_banner_area_enabled_globally() {
 }
 
 /**
+ * TODO: IS THIS EVEN NEEDED ANYMORE?!?!?!
+ *
  * Check if banner featured images is enabled
  *
  * @return bool
