@@ -4,7 +4,7 @@
  * Get setting by placeholder.
  * This accounts for post_type specific key names and all fallbacks. So easy and convenient!
  *
- * @param   string  $placeholder  Acceptable keys:
+ * @param  string  $placeholder  Acceptable keys:
  *
 enable_sticky_header
 enable_shrink_header
@@ -59,7 +59,7 @@ function mai_get_setting( $placeholder ) {
 	}
 
 	// New setting object.
-	$setting = new Mai_Setting( $placeholder );
+	$setting = new Mai_Setting( $key );
 
 	// Setting has not been previously been cached, so cache now.
 	$settings_cache[ $key ] = is_array( $setting->value ) ? stripslashes_deep( $setting->value ) : stripslashes( wp_kses_decode_entities( $setting->value ) );
@@ -73,10 +73,8 @@ function mai_get_setting( $placeholder ) {
  */
 class Mai_Setting {
 
-	protected $placeholder;
 	protected $key;
 	protected $value;
-	protected $placeholders;
 	protected $singular_meta;
 	protected $direct;
 	protected $check;
@@ -90,41 +88,14 @@ class Mai_Setting {
 	 * @param  string  $name  The setting name. May be a placeholder if the key uses the post_type name in it.
 	 */
 	function __construct( $key ) {
-		$this->placeholder   = $key;
-		$this->key           = $this->key();
+		$this->key           = $key;
 		$this->value         = $this->value();
-		$this->placeholders  = $this->placeholders();  // array
 		$this->singular_meta = $this->singular_meta(); // bool
 		$this->direct        = $this->direct();        // bool
 		$this->check         = $this->check();         // bool
 		$this->fallback      = $this->fallback();      // bool
 		$this->post_type     = $this->post_type();
 		$this->cpts          = genesis_get_cpt_archive_types_names();
-	}
-
-	/**
-	 * Get the actual key name from the placeholder.
-	 *
-	 * @return  string  The actual key name.
-	 */
-	public function key( $placeholder = '' ) {
-		if ( empty( $placeholder ) ) {
-			$placeholder = $this->placeholder;
-		}
-		return $this->keys[ $placeholder ];
-	}
-
-	/**
-	 * Get array of key names with post_type placeholders swapped for actual key name.
-	 *
-	 * @return  array  The keys as array( 'placeholder' => 'key' ).
-	 */
-	public function keys() {
-		$keys = array();
-		foreach( $this->placeholders as $placeholder ) {
-			$keys[ $placeholder ] = str_replace( 'post_type', $this->post_type, $placeholder );
-		}
-		return $keys;
 	}
 
 	/**
@@ -213,7 +184,7 @@ class Mai_Setting {
 			'banner_featured_image_post_type',
 			'singular_image_post_type',        // This may end up being just 'singular image'??
 		);
-		return in_array( $this->placeholder, $keys );
+		return in_array( $this->key, $keys );
 	}
 
 	public function banner_id() {
@@ -238,7 +209,7 @@ class Mai_Setting {
 			'posts_nav',
 			'posts_per_page',
 		);
-		return in_array( $this->placeholder, $keys );
+		return in_array( $this->key, $keys );
 	}
 
 	public function tricky_settings() {
@@ -251,7 +222,7 @@ class Mai_Setting {
 			'mai_hide_featured_image',
 			'remove_meta_post_type',
 		);
-		return in_array( $this->placeholder, $keys );
+		return in_array( $this->key, $keys );
 	}
 
 	/**
@@ -512,7 +483,7 @@ class Mai_Setting {
 	 * @return [type] [description]
 	 */
 	public function get_value() {
-		switch ( $this->placeholder ) {
+		switch ( $this->key ) {
 			case 'enable_sticky_header':
 				$value = genesis_get_option( $this->key );
 				break;
@@ -632,7 +603,7 @@ class Mai_Setting {
 			'hide_banner',
 			'mai_hide_featured_image',
 		);
-		return in_array( $this->placeholder, $keys ) ? true : false;
+		return in_array( $this->key, $keys ) ? true : false;
 	}
 
 	public function singular_option() {
@@ -640,7 +611,7 @@ class Mai_Setting {
 			'banner_id_post_type',
 			'banner_disable_post_type',
 		);
-		return in_array( $this->placeholder, $keys ) ? true : false;
+		return in_array( $this->key, $keys ) ? true : false;
 	}
 
 	/**
@@ -657,7 +628,7 @@ class Mai_Setting {
 			'remove_loop',
 			'enable_content_archive_settings',
 		);
-		return in_array( $this->placeholder, $keys ) ? true : false;
+		return in_array( $this->key, $keys ) ? true : false;
 	}
 
 	/**
@@ -679,7 +650,7 @@ class Mai_Setting {
 			'posts_per_page',
 		);
 		// If not an archive layout setting, no check.
-		if ( ! in_array( $this->placeholder, $keys ) ) {
+		if ( ! in_array( $this->key, $keys ) ) {
 			return false;
 		}
 		// If blog, post category/tag, or custom taxo on post/page, no check.
@@ -700,8 +671,8 @@ class Mai_Setting {
 	public function fallback() {
 		$keys = array(
 			'posts_per_page',
-		)
-		return ! in_array( $this->placeholder, $keys ) ? true : false;
+		);
+		return ! in_array( $this->key, $keys ) ? true : false;
 	}
 
 	public function value_og() {
@@ -764,7 +735,7 @@ class Mai_Setting {
 					$value = $this->get_term_meta_value_in_hierarchy( $queried_object, $this->key, $this->check );
 
 					// If no value and post type has settings, and not checking for content archive settings enabled or checking and they are enabled.
-					if ( ! $value && in_array( $this->post_type, $this->cpts ) ) && ( ! $this->check || ( $this->check && (bool) genesis_get_cpt_option( 'enable_content_archive_settings', $this->post_type ) ) ) ) {
+					if ( ! $value && in_array( $this->post_type, $this->cpts ) && ( ! $this->check || ( $this->check && (bool) genesis_get_cpt_option( 'enable_content_archive_settings', $this->post_type ) ) ) ) {
 						$value = genesis_get_cpt_option( $this->key, $this->post_type );
 					}
 				}

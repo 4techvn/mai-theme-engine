@@ -57,19 +57,7 @@ function mai_get_archive_post_type() {
 	if ( is_tax() ) {
 		$tax = isset( get_queried_object()->taxonomy ) ? get_taxonomy( get_queried_object()->taxonomy ) : false;
 		if ( $tax ) {
-			/**
-			 * Loop through and grab the first valid post type.
-			 * Taxonomies can be registered to other objects like Users too,
-			 * so we need to check it's a post type.
-			 */
-			foreach ( (array) $tax->object_type as $type ) {
-				if ( post_type_exists( $type ) ) {
-					$post_type = $type;
-					break;
-				}
-			}
-			// Add filter to force a specific post type to use for Mai CPT Settings on this taxonomy.
-			$post_type = apply_filters( 'mai_taxonomy_post_type', $post_type, $tax );
+			$post_type = mai_get_taxonomy_post_type( $tax );
 		}
 	}
 
@@ -88,6 +76,32 @@ function mai_get_archive_post_type() {
 	$post_type_cache = $post_type;
 
 	return $post_type;
+}
+
+function mai_get_taxonomy_post_type( $tax_name_or_object ) {
+	// Start of with no object name.
+	$object = false;
+	// Get the taxonomy.
+	if ( is_object( $tax_name_or_object ) ) {
+		$taxonomy = $tax_name_or_object;
+	} else {
+		$taxonomy = get_taxonomy( (string) $tax_name_or_object );
+	}
+	if ( $taxonomy ) {
+		/**
+		 * Loop through and grab the first valid post type.
+		 * Taxonomies can be registered to other objects like Users too,
+		 * so we need to check it's a post type.
+		 */
+		foreach ( (array) $taxonomy->object_type as $type ) {
+			if ( post_type_exists( $type ) ) {
+				$object = $type;
+				break;
+			}
+		}
+	}
+	// Add filter to force a specific post type to use for Mai CPT Settings on this taxonomy.
+	return apply_filters( 'mai_taxonomy_post_type', $object, $taxonomy );
 }
 
 function mai_cpt_has_setting( $post_type, $setting ) {
@@ -745,8 +759,13 @@ function mai_is_admin_woo_shop_page() {
 	return false;
 }
 
-function mai_get_post_type_settings_post_type_names() {
-	return array_keys( mai_get_post_type_settings_post_types() );
+function mai_get_post_type_settings_post_types() {
+	$post_types = get_post_types( array(
+		'public'  => true,
+		'show_ui' => true,
+	), 'names' );
+	unset( $post_types['attachment'] );
+	return apply_filters( 'mai_post_type_settings_post_types', $post_types );
 }
 
 /**
@@ -759,13 +778,13 @@ function mai_get_post_type_settings_post_type_names() {
  *
  * @return  array  key = post type name and value = post type object.
  */
-function mai_get_post_type_settings_post_types() {
-	$post_types         = array();
-	$post_types['page'] = get_post_type_object( 'page' );
-	$post_types['post'] = get_post_type_object( 'post' );
-	$post_types         = array_merge( $post_types, (array) genesis_get_cpt_archive_types() );
-	return apply_filters( 'mai_post_type_settings_post_types', $post_types );
-}
+// function mai_get_post_type_settings_post_types_og() {
+// 	$post_types         = array();
+// 	$post_types['page'] = get_post_type_object( 'page' );
+// 	$post_types['post'] = get_post_type_object( 'post' );
+// 	$post_types         = array_merge( $post_types, (array) genesis_get_cpt_archive_types() );
+// 	return apply_filters( 'mai_post_type_settings_post_types', $post_types );
+// }
 
 function mai_sections_has_title( $post_id ) {
 

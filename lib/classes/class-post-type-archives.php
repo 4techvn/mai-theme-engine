@@ -1,7 +1,7 @@
 <?php
 
 
-add_action( 'mai_before_content_archive', 'mai_do_archive_settings' );
+// add_action( 'mai_before_content_archive', 'mai_do_archive_settings' );
 function mai_do_archive_settings() {
 	$post_type = mai_get_archive_post_type();
 	if ( ! $post_type ) {

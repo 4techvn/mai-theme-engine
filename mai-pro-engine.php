@@ -125,9 +125,11 @@ final class Mai_Pro_Engine {
 	 */
 	private function setup() {
 
-		// Classes.
-		// foreach ( glob( MAI_PRO_ENGINE_LIB_DIR . 'classes/*.php' ) as $file ) { include_once $file; }
-		spl_autoload_register( array( $this, 'include_classes' ) );
+		// Include base classes (classes that are extended later).
+		foreach ( glob( MAI_PRO_ENGINE_LIB_DIR . 'classes/base/*.php' ) as $file ) { include_once $file; }
+		foreach ( glob( MAI_PRO_ENGINE_LIB_DIR . 'classes/*.php' ) as $file ) { include_once $file; }
+		// Include classes.
+		// spl_autoload_register( array( $this, 'include_classes' ) );
 
 		// Includes (Vendor).
 		require_once MAI_PRO_ENGINE_INCLUDES_DIR . 'CMB2/init.php';
@@ -328,6 +330,9 @@ final class Mai_Pro_Engine {
 		$classes = array();
 		// if ( isset( $classes[$class] ) ) {
 			// require_once( GENESIS_AUTHOR_PRO_CLASSES_DIR . $classes[$class] );
+		// }
+		// foreach ( glob( MAI_PRO_ENGINE_LIB_DIR . 'classes/abstract/*.php' ) as $file ) {
+		// 	$classes[ $file ] = $file;
 		// }
 		foreach ( glob( MAI_PRO_ENGINE_LIB_DIR . 'classes/*.php' ) as $file ) {
 			$classes[ $file ] = $file;
