@@ -102,7 +102,7 @@ function mai_get_default_option( $key ) {
 function mai_get_default_options() {
 
 	$defaults = array(
-		// Genesis (G defaults are used for everything but Mai CPT settings).
+		// Genesis.
 		'content_archive'           => 'full',
 		'content_archive_limit'     => 120,
 		'content_archive_thumbnail' => 1,
@@ -158,7 +158,31 @@ function mai_get_default_options() {
 	if ( $post_types ) {
 		// Loop through em.
 		foreach ( $post_types as $post_type ) {
-			$settings[ $post_type ] = array(); // TODO: Set these defaults or get Mai_CPT with values.
+			$settings[ $post_type ] = array(
+				'banner_background_color',
+				'banner_id',
+				'hide_banner',
+				'banner_disable',
+				'banner_disable_taxonomies',
+				'banner_featured_image',
+				'layout_archive',
+				'layout_single',
+				'featured_image_location',
+				'remove_meta_single',
+				'enable_content_archive_settings',
+				'columns',
+				'content_archive',
+				'content_archive_limit',
+				'content_archive_thumbnail',
+				'image_location',
+				'image_size',
+				'image_alignment',
+				'more_link',
+				'more_link_text',
+				'remove_meta',
+				'posts_per_page',
+				'posts_nav',
+			);
 		}
 	}
 	return apply_filters( 'genesis_theme_settings_defaults', $defaults );
@@ -185,21 +209,21 @@ function mai_get_default_cpt_options( $post_type ) {
 	// Defaults.
 	$defaults = array(
 		'banner_id'                       => '',
-		'hide_banner'                     => 0,
-		'layout'                          => mai_get_default_option( 'layout_archive' ),
-		'enable_content_archive_settings' => 0,
-		'columns'                         => mai_get_default_option( 'columns' ),
-		'content_archive'                 => mai_get_default_option( 'content_archive' ),
-		'content_archive_limit'           => mai_get_default_option( 'content_archive_limit' ),
-		'content_archive_thumbnail'       => mai_get_default_option( 'content_archive_thumbnail' ),
-		'image_location'                  => mai_get_default_option( 'image_location' ),
-		'image_size'                      => mai_get_default_option( 'image_size' ),
-		'image_alignment'                 => mai_get_default_option( 'image_alignment' ),
-		'more_link'                       => mai_get_default_option( 'more_link' ),
-		'more_link_text'                  => mai_get_default_option( 'more_link_text' ),
+		// 'hide_banner'                     => 0,
+		// 'layout'                          => mai_get_default_option( 'layout_archive' ),
+		// 'enable_content_archive_settings' => 0,
+		// 'columns'                         => mai_get_default_option( 'columns' ),
+		// 'content_archive'                 => mai_get_default_option( 'content_archive' ),
+		// 'content_archive_limit'           => mai_get_default_option( 'content_archive_limit' ),
+		// 'content_archive_thumbnail'       => mai_get_default_option( 'content_archive_thumbnail' ),
+		// 'image_location'                  => mai_get_default_option( 'image_location' ),
+		// 'image_size'                      => mai_get_default_option( 'image_size' ),
+		// 'image_alignment'                 => mai_get_default_option( 'image_alignment' ),
+		// 'more_link'                       => mai_get_default_option( 'more_link' ),
+		// 'more_link_text'                  => mai_get_default_option( 'more_link_text' ),
 		// 'remove_meta'                     => mai_get_default_option( 'remove_meta' ),
-		'posts_per_page'                  => mai_get_default_option( 'posts_per_page' ),
-		'posts_nav'                       => mai_get_default_option( 'posts_nav' ),
+		// 'posts_per_page'                  => mai_get_default_option( 'posts_per_page' ),
+		// 'posts_nav'                       => mai_get_default_option( 'posts_nav' ),
 	);
 	return apply_filters( 'genesis_cpt_archive_settings_defaults', $defaults, $post_type );
 }

@@ -14,11 +14,11 @@ abstract class Mai_Post_Type {
 	public $settings;
 
 	function __construct( $post_type ) {
-		$this->name           = $post_type;
-		$this->post_type      = get_post_type_object( $this->name );
-		$this->supports       = get_all_post_type_supports( $this->name );
-		$this->keys           = $this->keys();
-		$this->settings       = $this->settings();
+		$this->name      = $post_type;
+		$this->post_type = get_post_type_object( $this->name );
+		$this->supports  = get_all_post_type_supports( $this->name );
+		$this->keys      = $this->keys();
+		$this->settings  = $this->settings();
 	}
 
 	/**
@@ -95,22 +95,22 @@ abstract class Mai_Post_Type {
 
 		// If no entry meta support.
 		if ( ! ( $this->supports( 'genesis-entry-meta-after-content' ) || $this->supports( 'genesis-entry-meta-after-content' ) ) ) {
-			$settings['remove_meta_single'] = false;
+			$settings['remove_meta_single']              = false;
 		}
 
 		// If no editor or no excerpt support.
 		if ( ! ( $this->supports( 'editor' ) || $this->supports( 'excerpt' ) ) ) {
-			$settings['content_archive']       = false;
-			$settings['content_archive_limit'] = false;
+			$settings['content_archive']                 = false;
+			$settings['content_archive_limit']           = false;
 		}
 
 		// If no featured image support.
 		if ( ! $this->supports( 'thumbnail' ) ) {
-			$settings['featured_image_location']   = false;
-			$settings['content_archive_thumbnail'] = false;
-			$settings['image_location']            = false;
-			$settings['image_size']                = false;
-			$settings['image_alignment']           = false;
+			$settings['featured_image_location']         = false;
+			$settings['content_archive_thumbnail']       = false;
+			$settings['image_location']                  = false;
+			$settings['image_size']                      = false;
+			$settings['image_alignment']                 = false;
 		}
 
 		/**

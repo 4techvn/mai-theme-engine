@@ -73,7 +73,7 @@ class Mai_Post_Type_Settings extends Mai_Post_Type {
 		 */
 		add_post_type_support( $this->name, 'mai-settings' );
 
-		// Actions.
+		// Customizer settings.
 		add_action( 'customize_register', array( $this, 'customizer_settings' ), 22 );
 	}
 
