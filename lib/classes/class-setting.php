@@ -128,13 +128,9 @@ class Mai_Setting {
 				$value = $this->get_hide_banner();
 				break;
 			case 'banner_disable': // All single post_type
-				$value = $this->get_post_type_setting( $this->key );
-				break;
 			case 'banner_disable_taxonomies':
-				$value = '';
-				break;
-			case 'banner_featured_image_post_type':
-				$value = '';
+			case 'banner_featured_image':
+				$value = $this->get_post_type_setting( $this->key );
 				break;
 			case 'layout_archive_post_type':
 				$value = '';
@@ -317,14 +313,10 @@ class Mai_Setting {
 		$hide_banner = false;
 		if ( is_singular( $this->post_type ) ) {
 			$hide_banner = get_post_meta( get_the_ID(), $this->key, true );
-		} elseif ( is_post_type_archive() && post_type_supports( $this->post_type, 'genesis-cpt-archives-settings' ) ) {
-			$hide_banner = genesis_get_cpt_option( $this->key, $this->post_type );
+		} elseif ( is_post_type_archive() && post_type_supports( $this->post_type, 'mai-settings' ) ) {
+			$hide_banner = $this->get_post_type_setting( $this->key );
 		}
 		return $hide_banner;
-	}
-
-	public function get_banner_disable() {
-
 	}
 
 	public function get_layout() {
