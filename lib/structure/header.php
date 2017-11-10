@@ -44,7 +44,7 @@ add_filter( 'genesis_site_title_wrap', 'mai_site_title_wrap' );
 function mai_site_title_wrap( $wrap ) {
 
 	// Bail if not a singular Sections template without banner enabled.
-	if ( ! is_singular() && ! is_page_template( 'sections.php' ) && ! mai_is_banner_area_enabled() ) {
+	if ( ! ( is_singular() && is_page_template( 'sections.php' ) && mai_is_banner_area_enabled() ) ) {
 		return $wrap;
 	}
 
