@@ -786,6 +786,34 @@ function mai_get_post_type_settings_post_types() {
 // 	return apply_filters( 'mai_post_type_settings_post_types', $post_types );
 // }
 
+function mai_sections_has_h1( $post_id ) {
+
+	// Get the sections.
+	$sections = get_post_meta( $post_id, 'mai_sections', true );
+
+	// No sections.
+	if ( ! $sections ) {
+		return false;
+	}
+
+	// No title yet.
+	$has_h1 = false;
+
+	// Loop through each section.
+	foreach ( (array) $sections as $section ) {
+		// If content isset. Sometimes empty content doesn't even save the key.
+		if ( isset( $section['content'] ) ) {
+			// If content contains an h1.
+			if ( false !== strpos( $section['content'], '</h1>' ) ) {
+				$has_h1 = true;
+				break;
+			}
+		}
+	}
+
+	return $has_h1;
+}
+
 function mai_sections_has_title( $post_id ) {
 
 	// Get the sections.

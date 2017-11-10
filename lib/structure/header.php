@@ -42,19 +42,20 @@ function mai_custom_logo( $title, $inside, $wrap ) {
  */
 add_filter( 'genesis_site_title_wrap', 'mai_site_title_wrap' );
 function mai_site_title_wrap( $wrap ) {
-
 	// Bail if not a singular Sections template without banner enabled.
 	if ( ! ( is_singular() && is_page_template( 'sections.php' ) && mai_is_banner_area_enabled() ) ) {
 		return $wrap;
 	}
-
-	$has_title = mai_sections_has_title( get_the_ID() );
-
-	// If no title, use h1 on title.
-	if ( ! $has_title ) {
-		$wrap = 'h1';
+	// If section content has an h1.
+	$has_h1 = mai_sections_has_h1( get_the_ID() );
+	if ( ! $has_h1 ) {
+		// If any section has a title.
+		$has_title = mai_sections_has_title( get_the_ID() );
+		// If no title, use h1 on title.
+		if ( ! $has_title ) {
+			$wrap = 'h1';
+		}
 	}
-
 	return $wrap;
 }
 
