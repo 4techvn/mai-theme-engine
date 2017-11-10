@@ -12,20 +12,21 @@ footer_widget_count
 mobile_menu_style
 enable_banner_area
 banner_background_color
-banner_id (handles other keys)
+banner_id
 banner_overlay
 banner_inner
 banner_height
 banner_content_width
 banner_align_text
 hide_banner
-banner_disable_post_type
-banner_disable_taxonomies_post_type
-banner_featured_image_post_type
-layout (handles other keys)
-singular_image_post_type (should we just use 'singular_image' ????)
+banner_disable
+banner_disable_taxonomies
+banner_featured_image
+layout_archive
+layout_single
+featured_image_location
 mai_hide_featured_image
-remove_meta_post_type
+remove_meta_single
 enable_content_archive_settings
 columns
 content_archive
@@ -35,13 +36,14 @@ image_location
 image_size
 image_alignment
 more_link
+remove_meta
 remove_loop
 posts_per_page
 posts_nav
  *
  * @return  [type]              [description]
  */
-function mai_get_setting( $placeholder ) {
+function mai_get_setting( $key ) {
 
 	// Allow devs to short circuit this function.
 	$pre = apply_filters( "mai_pre_get_setting_{$key}", null );
@@ -87,15 +89,114 @@ class Mai_Setting {
 	 *
 	 * @param  string  $name  The setting name. May be a placeholder if the key uses the post_type name in it.
 	 */
-	function __construct( $key ) {
+	function __construct( $key, $post_type = '' ) {
 		$this->key           = $key;
-		$this->value         = $this->value();
+		$this->value         = $this->get_value();
+		$this->post_type     = $this->get_post_type( $post_type );
 		$this->singular_meta = $this->singular_meta(); // bool
 		$this->direct        = $this->direct();        // bool
-		$this->check         = $this->check();         // bool
 		$this->fallback      = $this->fallback();      // bool
-		$this->post_type     = $this->post_type();
 		$this->cpts          = genesis_get_cpt_archive_types_names();
+	}
+
+	/**
+	 * This should check each key individually.
+	 * Get the first value, then the hierarchy or post-type.
+	 * Maybe get fallback here, or in another method.
+	 *
+	 * @return [type] [description]
+	 */
+	public function get_value() {
+		switch ( $this->key ) {
+			case 'enable_sticky_header':
+			case 'enable_shrink_header':
+			case 'footer_widget_count':
+			case 'mobile_menu_style':
+			case 'enable_banner_area':
+			case 'banner_background_color':
+			case 'banner_overlay':
+			case 'banner_inner':
+			case 'banner_height':
+			case 'banner_content_width':
+			case 'banner_align_text':
+				$value = genesis_get_option( $this->key );
+				break;
+			case 'banner_id':
+				$value = $this->get_banner_id();
+				break;
+			case 'hide_banner': // post_type archive and/or single - direct
+				$value = $this->get_hide_banner();
+				break;
+			case 'banner_disable': // All single post_type
+				$value = $this->get_post_type_setting( $this->key );
+				break;
+			case 'banner_disable_taxonomies':
+				$value = '';
+				break;
+			case 'banner_featured_image_post_type':
+				$value = '';
+				break;
+			case 'layout_archive_post_type':
+				$value = '';
+				break;
+			case 'layout_post_type':
+				$value = '';
+				break;
+			case 'layout_archive':
+				$value = '';
+				break;
+			case 'site_layout':
+				$value = '';
+				break;
+			case 'featured_image_location':
+				$value = '';
+				break;
+			case 'mai_hide_featured_image':
+				$value = '';
+				break;
+			case 'remove_meta_post_type':
+				$value = '';
+				break;
+			case 'enable_content_archive_settings':
+				$value = '';
+				break;
+			case 'columns':
+				$value = '';
+				break;
+			case 'content_archive':
+				$value = '';
+				break;
+			case 'content_archive_limit':
+				$value = '';
+				break;
+			case 'content_archive_thumbnail':
+				$value = '';
+				break;
+			case 'image_location':
+				$value = '';
+				break;
+			case 'image_size':
+				$value = '';
+				break;
+			case 'image_alignment':
+				$value = '';
+				break;
+			case 'more_link':
+				$value = '';
+				break;
+			case 'remove_loop':
+				$value = '';
+				break;
+			case 'posts_per_page':
+				$value = '';
+				break;
+			case 'posts_nav':
+				$value = '';
+				break;
+			default:
+				$value = null;
+			break;
+		}
 	}
 
 	/**
@@ -103,8 +204,10 @@ class Mai_Setting {
 	 *
 	 * @return  string  The post type name, or empty string.
 	 */
-	public function post_type() {
-		$post_type = '';
+	public function get_post_type( $post_type = '' ) {
+		if ( $post_type ) {
+			return $post_type;
+		}
 		if ( is_singular() ) {
 			$post_type = get_post_type();
 			if ( ! $post_type ) {
@@ -117,132 +220,26 @@ class Mai_Setting {
 		return $post_type;
 	}
 
-	/**
-	 * Generic placeholder names for all keys.
-	 * Actual key names may be post_type specific.
-	 *
-	 * Keys that are used for all post types, including post/page, have post_type specific keys.
-	 *
-	 * @return  array  Placeholder key names.
-	 */
-	public function placeholders() {
-		return array(
-			'enable_sticky_header',
-			'enable_shrink_header',
-			'footer_widget_count',
-			'mobile_menu_style',
-			'enable_banner_area',
-			'banner_background_color',
-			'banner_id',
-			'banner_id_post_type',
-			'banner_overlay',
-			'banner_inner',
-			'banner_height',
-			'banner_content_width',
-			'banner_align_text',
-			'hide_banner',
-			'banner_disable_post_type',
-			'banner_disable_taxonomies_post_type',
-			'banner_featured_image_post_type',
-			'layout_archive_post_type',
-			'layout_post_type',
-			'layout_archive',
-			'site_layout',              // This is just 'layout' now?
-			'singular_image_post_type', // This may end up being just 'singular image'??
-			'mai_hide_featured_image',
-			'remove_meta_post_type',
-			'enable_content_archive_settings',
-			'columns',
-			'content_archive',
-			'content_archive_limit',
-			'content_archive_thumbnail',
-			'image_location',
-			'image_size',
-			'image_alignment',
-			'more_link',
-			'remove_loop',
-			'posts_per_page',
-			'posts_nav',
-		);
-	}
-
-	public function direct_options() {
-		$keys = array(
-			// Global.
-			'enable_sticky_header',
-			'enable_shrink_header',
-			'footer_widget_count',
-			'mobile_menu_style',
-			'enable_banner_area',
-			'banner_background_color',
-			'banner_overlay',
-			'banner_inner',
-			'banner_height',
-			'banner_content_width',
-			'banner_align_text',
-			// Singular only.
-			'banner_featured_image_post_type',
-			'singular_image_post_type',        // This may end up being just 'singular image'??
-		);
-		return in_array( $this->key, $keys );
-	}
-
-	public function banner_id() {
-		return ( 'banner_id' === $this->key );
-	}
-
-	public function layout() {
-		return ( 'layout' === $this->key );
-	}
-
-	public function archive_settings() {
-		$keys = array(
-			'columns', // Should this have its own?!?!?!?
-			'content_archive',
-			'content_archive_limit',
-			'content_archive_thumbnail',
-			'image_location',
-			'image_size',
-			'image_alignment',
-			'more_link',
-			'remove_meta',
-			'posts_nav',
-			'posts_per_page',
-		);
-		return in_array( $this->key, $keys );
-	}
-
-	public function tricky_settings() {
-		$keys = array(
-			'hide_banner',
-			'banner_disable_post_type',
-			'banner_disable_taxonomies_post_type',
-			'layout_archive_post_type',
-			'layout_archive',
-			'mai_hide_featured_image',
-			'remove_meta_post_type',
-		);
-		return in_array( $this->key, $keys );
-	}
-
-	/**
-	 * This could be a big switch of all the keys.
-	 */
-	public function value() {
-		$value = null;
-		if ( $this->direct_options() ) {
-			$value = genesis_get_option( $this->key );
+	public function get_post_type_setting( $key ) {
+		$mai_post_type = new Mai_Post_Type( $this->post_type );
+		if ( $mai_post_type->is_default_post_setting( $key ) ) {
+			// Return the option.
+			return genesis_get_option( $key );
 		}
-		elseif ( $this->banner_id() ) {
-			$value = $this->get_banner_id();
+		// Get the post type array of options.
+		$settings = genesis_get_option( $this->post_type );
+		// Return just the post type option we want.
+		return $settings[ $key ];
+	}
+
+
+	public function get_banner_id_by_post_id( $post_id ) {
+		$image_id = get_post_meta( $post_id, $this->key, true );
+		// If no image and featured images as banner is enabled.
+		if ( ! $image_id && $this->get_post_type_setting( 'banner_featured_image' ) ) {
+			$image_id = get_post_thumbnail_id( $post_id );
 		}
-		elseif ( $this->layout() ) {
-			$value = $this->get_layout();
-		}
-		elseif ( $this->archive_settings() ) {
-			$value = $this->get_archive_setting();
-		}
-		return $value;
+		return $image_id;
 	}
 
 	/**
@@ -254,7 +251,7 @@ class Mai_Setting {
 	 */
 	public function get_banner_id() {
 
-		// Start of without an image
+		// Start of without an image.
 		$image_id = false;
 
 		// Static front page.
@@ -272,26 +269,21 @@ class Mai_Setting {
 			$image_id = $this->get_banner_id_by_post_id( get_the_ID() );
 		}
 
-		// Term archive
+		// Term archive.
 		elseif ( is_category() || is_tag() || is_tax() ) {
-			// If WooCommerce product category
-			if ( class_exists( 'WooCommerce' ) && is_tax( array( 'product_cat', 'product_tag' ) ) ) {
-				// Woo uses it's own image field/key
+			// If WooCommerce product category.
+			if ( class_exists( 'WooCommerce' ) && is_tax( 'product_cat' ) ) {
+				// Woo uses it's own image field/key.
 				$image_id = get_term_meta( get_queried_object()->term_id, 'thumbnail_id', true );
 			} else {
 				$queried_object = get_queried_object();
 				if ( $queried_object ) {
 					$image_id = get_term_meta( $queried_object->term_id, $this->key, true );
 					if ( ! $image_id ) {
-						$image_id = $this->get_term_meta_value_in_hierarchy( $queried_object, $this->key, $this->check );
+						$image_id = $this->get_term_meta_value_in_hierarchy( $queried_object, $this->key, $this->needs_archive_settings_enabled() );
 					}
 				}
 			}
-		}
-
-		// CPT archive
-		elseif ( is_post_type_archive() && post_type_supports( get_post_type(), 'mai-cpt-settings' ) ) {
-			$image_id = genesis_get_cpt_option( $this->key );
 		}
 
 		// Author archive
@@ -300,8 +292,8 @@ class Mai_Setting {
 		}
 
 		// If no banner, try a post type default.
-		if ( ! $image_id ) {
-			$image_id = genesis_get_option( $this->key( 'banner_id_post_type' ) );
+		if ( ! $image_id && post_type_supports( $this->post_type, 'mai-settings' ) ) {
+			$image_id = $this->get_post_type_setting( $this->key );
 		}
 
 		/**
@@ -321,13 +313,18 @@ class Mai_Setting {
 
 	}
 
-	public function get_banner_id_by_post_id( $post_id ) {
-		$image_id = get_post_meta( $post_id, $this->key, true );
-		// If no image and featured images as banner is enabled.
-		if ( ! $image_id && genesis_get_option( $this->key( 'banner_featured_image_post_type' ) ) ) {
-			$image_id = get_post_thumbnail_id( $post_id );
+	public function get_hide_banner() {
+		$hide_banner = false;
+		if ( is_singular( $this->post_type ) ) {
+			$hide_banner = get_post_meta( get_the_ID(), $this->key, true );
+		} elseif ( is_post_type_archive() && post_type_supports( $this->post_type, 'genesis-cpt-archives-settings' ) ) {
+			$hide_banner = genesis_get_cpt_option( $this->key, $this->post_type );
 		}
-		return $image_id;
+		return $hide_banner;
+	}
+
+	public function get_banner_disable() {
+
 	}
 
 	public function get_layout() {
@@ -362,7 +359,7 @@ class Mai_Setting {
 				$layout = get_term_meta( $queried_object->term_id, 'layout', true );
 
 				if ( ! $layout ) {
-					$layout = $this->get_term_meta_value_in_hierarchy( $queried_object, $this->key, $this->check );
+					$layout = $this->get_term_meta_value_in_hierarchy( $queried_object, $this->key, $this->needs_archive_settings_enabled() );
 				}
 
 				if ( ! $layout ) {
@@ -380,7 +377,7 @@ class Mai_Setting {
 		}
 
 		// If viewing a supported post type.
-		elseif ( is_post_type_archive() && post_type_supports( $this->post_type, 'mai-cpt-settings' ) ) {
+		elseif ( is_post_type_archive() && post_type_supports( $this->post_type, 'mai-settings' ) ) {
 			$layout = genesis_get_cpt_option( 'layout_archive', $this->layout );
 			$layout = $layout ? $layout : genesis_get_option( 'layout_archive' );
 		}
@@ -432,7 +429,7 @@ class Mai_Setting {
 				} else {
 
 					// Get hierarchical taxonomy term meta.
-					$value = $this->get_term_meta_value_in_hierarchy( $queried_object, $this->key, $this->check );
+					$value = $this->get_term_meta_value_in_hierarchy( $queried_object, $this->key, $this->needs_archive_settings_enabled() );
 
 					// If no value.
 					if ( null === $value ) {
@@ -445,8 +442,8 @@ class Mai_Setting {
 			}
 		}
 
-		// CPT archive. Need to check for 'mai-cpt-settings' otherwise it won't have any settings to check.
-		elseif ( is_post_type_archive() && post_type_supports( $this->post_type, 'mai-cpt-settings' ) && enable_content_archive_settings() ) {
+		// CPT archive. Need to check for 'mai-settings' otherwise it won't have any settings to check.
+		elseif ( is_post_type_archive() && post_type_supports( $this->post_type, 'mai-settings' ) && enable_content_archive_settings() ) {
 			$value = genesis_get_cpt_option( $this->key );
 		}
 
@@ -463,139 +460,13 @@ class Mai_Setting {
 		if ( is_category() || is_tag() || is_tax() ) {
 			return (bool) get_term_meta( $queried_object->term_id, 'enable_content_archive_settings', true );
 		}
-		elseif ( is_post_type_archive() && post_type_supports( $this->post_type, 'mai-cpt-settings' ) ) {
+		elseif ( is_post_type_archive() && post_type_supports( $this->post_type, 'mai-settings' ) ) {
 			return (bool) genesis_get_cpt_option( 'enable_content_archive_settings', $this->post_type );
 		}
 		elseif ( is_author() ) {
 			return (bool) get_the_author_meta( 'enable_content_archive_settings', get_query_var( 'author' ) );
 		}
 		return false;
-	}
-
-
-
-
-	/**
-	 * This should check each key individually.
-	 * Get the first value, then the hierarchy or post-type.
-	 * Maybe get fallback here, or in another method.
-	 *
-	 * @return [type] [description]
-	 */
-	public function get_value() {
-		switch ( $this->key ) {
-			case 'enable_sticky_header':
-				$value = genesis_get_option( $this->key );
-				break;
-			case 'enable_shrink_header':
-				$value = genesis_get_option( $this->key );
-				break;
-			case 'footer_widget_count':
-				$value = genesis_get_option( $this->key );
-				break;
-			case 'mobile_menu_style':
-				$value = genesis_get_option( $this->key );
-				break;
-			case 'enable_banner_area':
-				$value = genesis_get_option( $this->key );
-				break;
-			case 'banner_background_color':
-				$value = genesis_get_option( $this->key );
-				break;
-			case 'banner_id':
-				$value = '';
-				break;
-			case 'banner_id_post_type':
-				$value = '';
-				break;
-			case 'banner_overlay':
-				$value = '';
-				break;
-			case 'banner_inner':
-				$value = '';
-				break;
-			case 'banner_height':
-				$value = '';
-				break;
-			case 'banner_content_width':
-				$value = '';
-				break;
-			case 'banner_align_text':
-				$value = '';
-				break;
-			case 'hide_banner':
-				$value = '';
-				break;
-			case 'banner_disable_post_type':
-				$value = '';
-				break;
-			case 'banner_disable_taxonomies_post_type':
-				$value = '';
-				break;
-			case 'banner_featured_image_post_type':
-				$value = '';
-				break;
-			case 'layout_archive_post_type':
-				$value = '';
-				break;
-			case 'layout_post_type':
-				$value = '';
-				break;
-			case 'layout_archive':
-				$value = '';
-				break;
-			case 'site_layout':
-				$value = '';
-				break;
-			case 'singular_image_post_type':
-				$value = '';
-				break;
-			case 'mai_hide_featured_image':
-				$value = '';
-				break;
-			case 'remove_meta_post_type':
-				$value = '';
-				break;
-			case 'enable_content_archive_settings':
-				$value = '';
-				break;
-			case 'columns':
-				$value = '';
-				break;
-			case 'content_archive':
-				$value = '';
-				break;
-			case 'content_archive_limit':
-				$value = '';
-				break;
-			case 'content_archive_thumbnail':
-				$value = '';
-				break;
-			case 'image_location':
-				$value = '';
-				break;
-			case 'image_size':
-				$value = '';
-				break;
-			case 'image_alignment':
-				$value = '';
-				break;
-			case 'more_link':
-				$value = '';
-				break;
-			case 'remove_loop':
-				$value = '';
-				break;
-			case 'posts_per_page':
-				$value = '';
-				break;
-			case 'posts_nav':
-				$value = '';
-				break;
-			default:
-				$value = null;
-			break;
-		}
 	}
 
 	public function singular_meta() {
@@ -636,7 +507,7 @@ class Mai_Setting {
 	 *
 	 * @return  bool
 	 */
-	public function check() {
+	public function needs_archive_settings_enabled() {
 		$keys = array(
 			'content_archive',
 			'content_archive_limit',
@@ -724,7 +595,7 @@ class Mai_Setting {
 				}
 
 				// If not checking, or checking and is enabled, use as value.
-				if ( ! $this->check || ( $this->check && (bool) get_term_meta( $queried_object->term_id, 'enable_content_archive_settings', true ) ) ) {
+				if ( ! $this->needs_archive_settings_enabled() || ( $this->needs_archive_settings_enabled() && (bool) get_term_meta( $queried_object->term_id, 'enable_content_archive_settings', true ) ) ) {
 					$value = $term_meta;
 				}
 
@@ -732,18 +603,18 @@ class Mai_Setting {
 				if ( ! $value ) {
 
 					// Get hierarchical taxonomy term meta.
-					$value = $this->get_term_meta_value_in_hierarchy( $queried_object, $this->key, $this->check );
+					$value = $this->get_term_meta_value_in_hierarchy( $queried_object, $this->key, $this->needs_archive_settings_enabled() );
 
 					// If no value and post type has settings, and not checking for content archive settings enabled or checking and they are enabled.
-					if ( ! $value && in_array( $this->post_type, $this->cpts ) && ( ! $this->check || ( $this->check && (bool) genesis_get_cpt_option( 'enable_content_archive_settings', $this->post_type ) ) ) ) {
+					if ( ! $value && in_array( $this->post_type, $this->cpts ) && ( ! $this->needs_archive_settings_enabled() || ( $this->needs_archive_settings_enabled() && (bool) genesis_get_cpt_option( 'enable_content_archive_settings', $this->post_type ) ) ) ) {
 						$value = genesis_get_cpt_option( $this->key, $this->post_type );
 					}
 				}
 			}
 		}
 
-		// CPT archive. Need to check for 'mai-cpt-settings' otherwise it won't have any settings to check.
-		elseif ( is_post_type_archive() && post_type_supports( $this->post_type, 'mai-cpt-settings' ) ) {
+		// CPT archive. Need to check for 'mai-settings' otherwise it won't have any settings to check.
+		elseif ( is_post_type_archive() && post_type_supports( $this->post_type, 'mai-settings' ) ) {
 
 			// Save as variable for direct call.
 			$post_type_option = genesis_get_cpt_option( $this->key );
@@ -753,7 +624,7 @@ class Mai_Setting {
 			}
 
 			// If not checking, or checking and is enabled, use as value.
-			if ( ! $this->check || ( $this->check && (bool) genesis_get_cpt_option( 'enable_content_archive_settings', $this->post_type ) ) ) {
+			if ( ! $this->needs_archive_settings_enabled() || ( $this->needs_archive_settings_enabled() && (bool) genesis_get_cpt_option( 'enable_content_archive_settings', $this->post_type ) ) ) {
 				$value = $post_type_option;
 			}
 		}
@@ -767,7 +638,7 @@ class Mai_Setting {
 				return $author_meta;
 			}
 
-			if ( ! $this->check || ( $this->check && (bool) get_the_author_meta( 'enable_content_archive_settings', get_query_var( 'author' ) ) ) ) {
+			if ( ! $this->needs_archive_settings_enabled() || ( $this->needs_archive_settings_enabled() && (bool) get_the_author_meta( 'enable_content_archive_settings', get_query_var( 'author' ) ) ) ) {
 				$value = $author_meta;
 			}
 		}

@@ -44,6 +44,9 @@ function mai_upgrade_1170() {
 
 	// remove layout and banner metaboxes from static blog page
 	// do we even need mai_is_banner_featured_image_enabled() anymore?
+
+	// CHANGED A TON, NOT SURE ABOUT ^^^^ WILL HAVE TO GO THROUGH IT TO CONFIRM
+	//
 }
 
 /**

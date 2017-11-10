@@ -969,6 +969,30 @@ class Mai_Post_Type_Settings extends Mai_Post_Type {
 
 	}
 
+	function get_setting_id( $key ) {
+		if ( 'post' === $this->name ) {
+			// These are default Genesis keys, and shouldn't get messed with.
+			if ( in_array( $key, array(
+				'content_archive',
+				'content_archive_limit',
+				'content_archive_thumbnail',
+				'image_location',
+				'image_size',
+				'image_alignment',
+				'more_link',
+				'posts_per_page',
+				'posts_nav',
+			) ) ) {
+				return sprintf( 'genesis-settings[%s]', $key );
+			}
+			// Core WP option, added in Customizer for consistency.
+			elseif ( 'posts_per_page' === $key ) {
+				return sprintf( 'posts_per_page', $key );
+			}
+		}
+		return sprintf( 'genesis-settings[%s][%s]', $this->name, $key );
+	}
+
 	/**
 	 * Helper function to check if the banner area is enabled globally.
 	 *

@@ -29,9 +29,8 @@ abstract class Mai_Post_Type {
 	 */
 	public function keys() {
 		return array(
-			'banner_background_color',
 			'banner_id',
-			'hide_banner',                // Archive (Main)
+			'hide_banner',                // Archive (post type archive or single - direct)
 			'banner_disable',             // Singular
 			'banner_disable_taxonomies',  // Archives (Taxo)
 			'banner_featured_image',      // Singular
@@ -54,8 +53,24 @@ abstract class Mai_Post_Type {
 		);
 	}
 
-	public function get_setting_id( $key ) {
-		return sprintf( 'genesis-settings[%s][%s]', $this->name, $key );
+	public function is_default_post_setting( $key ) {
+		if ( 'post' === $this->name ) {
+			// These are default Genesis keys, and shouldn't get messed with.
+			if ( in_array( $key, array(
+				'content_archive',
+				'content_archive_limit',
+				'content_archive_thumbnail',
+				'image_location',
+				'image_size',
+				'image_alignment',
+				'more_link',
+				'posts_per_page',
+				'posts_nav',
+			) ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public function has_setting( $setting ) {
