@@ -5,7 +5,7 @@
  * Plugin URI:      https://maipro.io/
  * Description:     The Mai Pro Engine plugin
  *
- * Version:         1.1.6.1
+ * Version:         1.1.7
  *
  * GitHub URI:      maiprowp/mai-pro-engine
  *
@@ -91,7 +91,7 @@ final class Mai_Pro_Engine {
 	private function setup_constants() {
 
 		// Plugin version.
-		define( 'MAI_PRO_ENGINE_VERSION', '1.1.6.1' );
+		define( 'MAI_PRO_ENGINE_VERSION', '1.1.7' );
 
 		// DB version.
 		define( 'MAI_PRO_ENGINE_DB_VERSION', '1161' );
@@ -316,30 +316,6 @@ final class Mai_Pro_Engine {
 
 		}, 8 );
 
-	}
-
-	/**
-	 * Registered autoload function.
-	 * Used to load class files automatically if they are in the provided array.
-	 *
-	 * @access public
-	 * @param string $class
-	 * @return void
-	 */
-	function include_classes( $class ) {
-		$classes = array();
-		// if ( isset( $classes[$class] ) ) {
-			// require_once( GENESIS_AUTHOR_PRO_CLASSES_DIR . $classes[$class] );
-		// }
-		// foreach ( glob( MAI_PRO_ENGINE_LIB_DIR . 'classes/abstract/*.php' ) as $file ) {
-		// 	$classes[ $file ] = $file;
-		// }
-		foreach ( glob( MAI_PRO_ENGINE_LIB_DIR . 'classes/*.php' ) as $file ) {
-			$classes[ $file ] = $file;
-		}
-		if ( isset( $classes[$class] ) ) {
-			include_once $classes[ $class ];
-		}
 	}
 
 	function deactivate_plugin() {

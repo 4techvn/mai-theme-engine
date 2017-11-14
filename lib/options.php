@@ -50,7 +50,6 @@ function mai_enforce_custom_genesis_settings( $new_value, $old_value ) {
 			$new_value[ $key ] = genesis_get_option( $key );
 		}
 	}
-
 	return $new_value;
 }
 
