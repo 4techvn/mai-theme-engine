@@ -113,8 +113,6 @@ function mai_get_default_options() {
 		// Mai General.
 		'enable_sticky_header'      => 0,
 		'enable_shrink_header'      => 0,
-		// 'singular_image_page'       => 1,
-		// 'singular_image_post'       => 1,
 		'footer_widget_count'       => 2,
 		'mobile_menu_style'         => 'standard',
 		// Mai Banner.
@@ -156,33 +154,44 @@ function mai_get_default_options() {
 	$post_types = mai_get_post_type_settings_post_types();
 
 	if ( $post_types ) {
+
+		// Make sure post is the first post type in the array.
+		if ( isset( $post_types['post'] ) ) {
+			unset( $post_types['post'] );
+			array_unshift( $post_types, 'post' );
+		}
+
 		// Loop through em.
 		foreach ( $post_types as $post_type ) {
-			$settings[ $post_type ] = array(
-				'banner_background_color',
-				'banner_id',
-				'hide_banner',
-				'banner_disable',
-				'banner_disable_taxonomies',
-				'banner_featured_image',
-				'layout_archive',
-				'layout_single',
-				'featured_image_location',
-				'remove_meta_single',
-				'enable_content_archive_settings',
-				'columns',
-				'content_archive',
-				'content_archive_limit',
-				'content_archive_thumbnail',
-				'image_location',
-				'image_size',
-				'image_alignment',
-				'more_link',
-				'more_link_text',
-				'remove_meta',
-				'posts_per_page',
-				'posts_nav',
+			$defaults[ $post_type ] = array(
+				'banner_background_color'         => '',
+				'banner_id'                       => '',
+				'hide_banner'                     => 0,
+				'banner_disable'                  => 0,
+				'banner_disable_taxonomies'       => '',
+				'banner_featured_image'           => 0,
+				'layout_archive'                  => ( 'post' === $post_type ) ? '' : $defaults['post']['layout_archive'],
+				'layout_single'                   => '',
+				'featured_image_location'         => ( 'post' === $post_type ) ? 'before_entry' : $defaults['post']['featured_image_location'],
+				'remove_meta_single'              => '',
+				'enable_content_archive_settings' => 0,
+				'columns'                         => ( 'post' === $post_type ) ? '' : $defaults['columns'],
+				'content_archive'                 => ( 'post' === $post_type ) ? '' : $defaults['content_archive'],
+				'content_archive_limit'           => ( 'post' === $post_type ) ? '' : $defaults['content_archive_limit'],
+				'content_archive_thumbnail'       => ( 'post' === $post_type ) ? '' : $defaults['content_archive_thumbnail'],
+				'image_location'                  => ( 'post' === $post_type ) ? '' : $defaults['image_location'],
+				'image_size'                      => ( 'post' === $post_type ) ? '' : $defaults['image_size'],
+				'image_alignment'                 => ( 'post' === $post_type ) ? '' : $defaults['image_alignment'],
+				'more_link'                       => ( 'post' === $post_type ) ? '' : $defaults['more_link'],
+				'more_link_text'                  => ( 'post' === $post_type ) ? '' : $defaults['more_link_text'],
+				'remove_meta'                     => ( 'post' === $post_type ) ? '' : $defaults['remove_meta'],
+				'posts_per_page'                  => ( 'post' === $post_type ) ? '' : $defaults['posts_per_page'],
+				'posts_nav'                       => ( 'post' === $post_type ) ? '' : $defaults['posts_nav'],
 			);
+		}
+		if ( isset( $defaults['post']['enable_content_archive_settings'] ) ) {
+			// Posts are always enabled and don't have this setting.
+			unset( $defaults['post']['enable_content_archive_settings'] );
 		}
 	}
 	return apply_filters( 'genesis_theme_settings_defaults', $defaults );

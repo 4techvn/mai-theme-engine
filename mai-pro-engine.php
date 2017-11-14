@@ -125,8 +125,8 @@ final class Mai_Pro_Engine {
 	 */
 	private function setup() {
 
-		// Include base classes (classes that are extended later).
-		foreach ( glob( MAI_PRO_ENGINE_LIB_DIR . 'classes/base/*.php' ) as $file ) { include_once $file; }
+		// Include abstract classes (classes that are extended later).
+		foreach ( glob( MAI_PRO_ENGINE_LIB_DIR . 'classes/abstract/*.php' ) as $file ) { include_once $file; }
 		foreach ( glob( MAI_PRO_ENGINE_LIB_DIR . 'classes/*.php' ) as $file ) { include_once $file; }
 		// Include classes.
 		// spl_autoload_register( array( $this, 'include_classes' ) );

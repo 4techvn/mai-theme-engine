@@ -13,7 +13,7 @@
  * 'layout_archive'
  * 'layout_single'
  * 'singular_image_location' (singular_image_size later?)
- * 'remove_meta'
+ * 'remove_meta_single'
  * 'enable_content_archive_settings'
  * 'columns'
  * 'content_archive'
@@ -34,7 +34,6 @@ function mai_post_type_settings_init() {
 
 	// Get post types.
 	$post_types = mai_get_post_type_settings_post_types();
-
 	// Bail if no post types.
 	if ( ! $post_types ) {
 		return;
@@ -63,10 +62,10 @@ class Mai_Post_Type_Settings extends Mai_Post_Type {
 		parent::__construct( $post_type );
 
 		// Construct child params.
-		$this->genesis_settings = 'genesis-settings';
+		// $this->genesis_settings = 'genesis-settings';
+		$this->genesis_settings = GENESIS_SETTINGS_FIELD;
 		$this->section_id       = sprintf( 'mai_%s_settings', $this->name );
 		$this->prefix           = sprintf( '%s_', $this->name );
-
 		/**
 		 * Add Mai CPT support here.
 		 * This should happen here, internally only. Please don't add 'mai-settings' support to CPT's manually.
@@ -95,7 +94,10 @@ class Mai_Post_Type_Settings extends Mai_Post_Type {
 			)
 		);
 
-		if ( $this->has_setting( 'banner_id' ) || $this->has_setting( 'hide_banner' ) || $this->has_setting( 'banner_disable' ) || $this->has_setting( 'banner_disable_taxonomies' ) ) {
+		if ( $this->has_setting( 'banner_id' )
+			|| $this->has_setting( 'hide_banner' )
+			|| $this->has_setting( 'banner_disable' )
+			|| $this->has_setting( 'banner_disable_taxonomies' ) ) {
 
 			// Banner break.
 			$wp_customize->add_setting(
@@ -148,9 +150,11 @@ class Mai_Post_Type_Settings extends Mai_Post_Type {
 
 		}
 
-		if ( $this->has_setting( 'hide_banner' ) || $this->has_setting( 'banner_disable' ) || $this->has_setting( 'banner_disable_taxonomies' ) ) {
+		if ( $this->has_setting( 'hide_banner' )
+			|| $this->has_setting( 'banner_disable' )
+			|| $this->has_setting( 'banner_disable_taxonomies' ) ) {
 
-			// Disable banner, heading only.
+			// Hide banner, heading only.
 			$wp_customize->add_setting(
 				$this->get_setting_id( 'hide_banner_heading' ),
 				array(
@@ -970,27 +974,10 @@ class Mai_Post_Type_Settings extends Mai_Post_Type {
 	}
 
 	function get_setting_id( $key ) {
-		if ( 'post' === $this->name ) {
-			// These are default Genesis keys, and shouldn't get messed with.
-			if ( in_array( $key, array(
-				'content_archive',
-				'content_archive_limit',
-				'content_archive_thumbnail',
-				'image_location',
-				'image_size',
-				'image_alignment',
-				'more_link',
-				'posts_per_page',
-				'posts_nav',
-			) ) ) {
-				return sprintf( 'genesis-settings[%s]', $key );
-			}
-			// Core WP option, added in Customizer for consistency.
-			elseif ( 'posts_per_page' === $key ) {
-				return sprintf( 'posts_per_page', $key );
-			}
+		if ( 'post' === $this->name && 'posts_per_page' === $key ) {
+			return sprintf( 'posts_per_page', $key );
 		}
-		return sprintf( 'genesis-settings[%s][%s]', $this->name, $key );
+		return sprintf( "genesis-settings['post_types']['%s']['%s']", $this->name, $key );
 	}
 
 	/**
