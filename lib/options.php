@@ -1,35 +1,9 @@
 <?php
 
-add_action( 'genesis_before_content_sidebar_wrap', function() {
-	// $post_type = new Mai_Post_type( 'wampum_program' );
-	// d( $post_type->get_post_type() );
-// 	// $settings = get_option( 'genesis-settings' );
-// 	// $settings = get_option( 'genesis-cpt-archive-settings-wiki' );
-// 	$settings = get_post_types( array(
-// 		'public'  => true,
-// 		'show_ui' => true,
-// 	) );
-// 	// $settings = get_post_type_object( 'surl' );
-// 	d( $settings );
-});
-
-class Testerton {
-	protected $post_type;
-	function __construct( $post_type ) {
-		$this->post_type = get_post_type_object( $post_type );
-	}
-
-	public function get_post_type() {
-		return $this->post_type;
-	}
-}
-
 /**
  * This filter makes sure our custom settings are not wiped out when updating via Genesis > Theme Settings.
  * In 1.1.2 we were made aware of a critical bug where our custom settings were cleared anytime
  * a user would hit "Save" in Genesis > Theme Settings.
- *
- * In 1.1.3 we were made aware of a critical bug when Genesis was updated it wiped the custom settings.
  *
  * @since   1.1.3
  *
@@ -37,17 +11,14 @@ class Testerton {
  */
 add_filter( 'pre_update_option_genesis-settings', 'mai_enforce_custom_genesis_settings', 10, 2 );
 function mai_enforce_custom_genesis_settings( $new_value, $old_value ) {
-
-	$settings = get_option( 'genesis-settings' );
-
-	// Loop through em.
-	foreach ( (array) $settings as $key => $value ) {
+	// Loop through the old values array.
+	foreach ( (array) $old_value as $key => $value ) {
 		/**
 		 * If a custom setting is not part of what's getting updated,
 		 * we need to add to the $new_value array it so it's not lost.
 		 */
-		if ( ! isset( $values[ $key ] ) ) {
-			$new_value[ $key ] = genesis_get_option( $key );
+		if ( ! isset( $new_value[ $key ] ) ) {
+			$new_value[ $key ] = $old_value[ $key ];
 		}
 	}
 	return $new_value;

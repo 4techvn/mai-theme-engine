@@ -28,8 +28,8 @@
  *
  * @return  void
  */
-add_action( 'init', 'mai_cpt_settings_init', 999 );
-function mai_cpt_settings_init() {
+// add_action( 'init', 'mai_cpt_settings_init_og', 999 );
+function mai_cpt_settings_init_og() {
 
 	/**
 	 * Get post types.
