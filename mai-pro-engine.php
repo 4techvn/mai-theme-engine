@@ -5,7 +5,11 @@
  * Plugin URI:      https://maipro.io/
  * Description:     The Mai Pro Engine plugin
  *
+<<<<<<< HEAD
  * Version:         1.1.7
+=======
+ * Version:         1.1.8
+>>>>>>> 6ed1ca9... Sections template no longer loads a template file
  *
  * GitHub URI:      maiprowp/mai-pro-engine
  *
@@ -91,7 +95,11 @@ final class Mai_Pro_Engine {
 	private function setup_constants() {
 
 		// Plugin version.
+<<<<<<< HEAD
 		define( 'MAI_PRO_ENGINE_VERSION', '1.1.7' );
+=======
+		define( 'MAI_PRO_ENGINE_VERSION', '1.1.8' );
+>>>>>>> 6ed1ca9... Sections template no longer loads a template file
 
 		// DB version.
 		define( 'MAI_PRO_ENGINE_DB_VERSION', '1161' );

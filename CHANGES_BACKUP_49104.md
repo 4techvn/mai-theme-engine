@@ -1,5 +1,7 @@
 ### Changelog
 
+<<<<<<< HEAD
+=======
 #### 1.1.8 (10/21/17)
 * Changed: Sections template no longer loads a template file, so you can use Sections template in Dashboard but still use front-page.php (or other template) in your theme.
 * Fixed: Settings not saving correctly.
@@ -7,6 +9,7 @@
 #### 1.1.7.1 (10/18/17)
 * Fixed: Some custom Mai settings were not saving correctly in customizer.
 
+>>>>>>> 6ed1ca9... Sections template no longer loads a template file
 #### 1.1.7 (10/14/17)
 * Fixed: Some custom settings getting cleared during Genesis updates.
 * Fixed: Shortcodes getting parsed by Yoast/WPSEO would break things if [grid] was used with parent="current" as a parameter.
