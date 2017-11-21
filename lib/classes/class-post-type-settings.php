@@ -34,6 +34,7 @@ function mai_post_type_settings_init() {
 
 	// Get post types.
 	$post_types = mai_get_post_type_settings_post_types();
+
 	// Bail if no post types.
 	if ( ! $post_types ) {
 		return;
@@ -63,9 +64,11 @@ class Mai_Post_Type_Settings extends Mai_Post_Type {
 
 		// Construct child params.
 		// $this->genesis_settings = 'genesis-settings';
-		$this->genesis_settings = GENESIS_SETTINGS_FIELD;
-		$this->section_id       = sprintf( 'mai_%s_settings', $this->name );
-		$this->prefix           = sprintf( '%s_', $this->name );
+		// $this->genesis_settings = GENESIS_SETTINGS_FIELD;
+		$this->settings_field = 'mai_post_type_settings';
+		$this->section_id     = sprintf( 'mai_%s_settings', $this->name );
+		$this->prefix         = sprintf( '%s_', $this->name );
+
 		/**
 		 * Add Mai CPT support here.
 		 * This should happen here, internally only. Please don't add 'mai-settings' support to CPT's manually.
@@ -79,7 +82,7 @@ class Mai_Post_Type_Settings extends Mai_Post_Type {
 	/**
 	 * Register the customizer settings sections and fields.
 	 *
-	 * @param   object  $wp_customize  The customizeer object.
+	 * @param   object  $wp_customize  The customizer object.
 	 *
 	 * @return  void.
 	 */
@@ -206,7 +209,7 @@ class Mai_Post_Type_Settings extends Mai_Post_Type {
 
 		if ( $this->has_setting( 'banner_disable' ) ) {
 
-			// Disable banner singular (saves to genesis-settings option).
+			// Disable banner singular.
 			$wp_customize->add_setting(
 				$this->get_setting_id( 'banner_disable' ),
 				array(
@@ -232,7 +235,7 @@ class Mai_Post_Type_Settings extends Mai_Post_Type {
 
 		if ( $this->has_setting( 'banner_disable_taxonomies' ) ) {
 
-			// Disable banner taxonomies (saves to genesis-settings option).
+			// Disable banner taxonomies.
 			$disable_taxonomies = array();
 			$taxonomies         = get_object_taxonomies( $this->name, 'objects' );
 			if ( $taxonomies ) {
@@ -242,7 +245,6 @@ class Mai_Post_Type_Settings extends Mai_Post_Type {
 					}
 				}
 
-				// TODO: Default option needs to be fixed. The core mai_get_default_option() function needs to get post type options or something.
 				$wp_customize->add_setting(
 					$this->get_setting_id( 'banner_disable_taxonomies' ),
 					array(
@@ -269,191 +271,197 @@ class Mai_Post_Type_Settings extends Mai_Post_Type {
 
 		}
 
-		// if ( $this->has_setting( 'banner_featured_image_post_type' ) ) {
+		if ( $this->has_setting( 'banner_featured_image' ) ) {
 
-		// 	// Banner featured image, heading only.
-		// 	$wp_customize->add_setting(
-		// 		$this->get_setting_id( 'banner_featured_image_heading' ),
-		// 		array(
-		// 			'default' => '',
-		// 			'type'    => 'option',
-		// 		)
-		// 	);
-		// 	$wp_customize->add_control(
-		// 		new Mai_Customize_Control_Content( $wp_customize,
-		// 			$this->prefix . 'banner_featured_image_heading',
-		// 			array(
-		// 				'label'           => __( 'Featured Image on (single entries)', 'mai-pro-engine' ),
-		// 				'section'         => $this->section_id,
-		// 				'settings'        => false,
-		// 				'active_callback' => function() use ( $wp_customize ) {
-		// 					return ( (bool) ! $wp_customize->get_setting( $this->get_setting_id( $this->genesis_settings, $this->banner_disable_key ) )->value() && $this->is_banner_area_enabled_globally( $wp_customize, $this->genesis_settings ) );
-		// 				},
-		// 			)
-		// 		)
-		// 	);
+			// Banner featured image, heading only.
+			$wp_customize->add_setting(
+				$this->get_setting_id( 'banner_featured_image_heading' ),
+				array(
+					'default' => '',
+					'type'    => 'option',
+				)
+			);
+			$wp_customize->add_control(
+				new Mai_Customize_Control_Content( $wp_customize,
+					$this->prefix . 'banner_featured_image_heading',
+					array(
+						'label'           => __( 'Featured Image on (single entries)', 'mai-pro-engine' ),
+						'section'         => $this->section_id,
+						'settings'        => false,
+						'active_callback' => function() use ( $wp_customize ) {
+							return ( (bool) ! $wp_customize->get_setting( $this->get_setting_id( 'banner_disable' ) )->value() && $this->is_banner_area_enabled_globally( $wp_customize ) );
+						},
+					)
+				)
+			);
 
-		// 	// Banner featured image (saves to genesis-settings option).
-		// 	$wp_customize->add_setting(
-		// 		$this->get_setting_id( $this->genesis_settings, $this->banner_featured_image_key ),
-		// 		array(
-		// 			'default'           => mai_sanitize_one_zero( mai_get_default_option( $this->banner_featured_image_key ) ),
-		// 			'type'              => 'option',
-		// 			'sanitize_callback' => 'mai_sanitize_one_zero',
-		// 		)
-		// 	);
-		// 	$wp_customize->add_control(
-		// 		$this->prefix . $this->banner_featured_image_key,
-		// 		array(
-		// 			'label'           => __( 'Use featured image as banner image', 'mai-pro-engine' ),
-		// 			'section'         => $this->section_id,
-		// 			'settings'        => $this->get_setting_id( $this->genesis_settings, $this->banner_featured_image_key ),
-		// 			'priority'        => 10,
-		// 			'type'            => 'checkbox',
-		// 			'active_callback' => function() use ( $wp_customize ) {
-		// 				return ( (bool) ! $wp_customize->get_setting( $this->get_setting_id( $this->genesis_settings, $this->banner_disable_key ) )->value() && $this->is_banner_area_enabled_globally( $wp_customize, $this->genesis_settings ) );
-		// 			},
-		// 		)
-		// 	);
+			// Banner featured image.
+			$wp_customize->add_setting(
+				$this->get_setting_id( 'banner_featured_image' ),
+				array(
+					'default'           => mai_sanitize_one_zero( mai_get_default_cpt_option( 'banner_featured_image' ) ),
+					'type'              => 'option',
+					'sanitize_callback' => 'mai_sanitize_one_zero',
+				)
+			);
+			$wp_customize->add_control(
+				$this->prefix . 'banner_featured_image',
+				array(
+					'label'           => __( 'Use featured image as banner image', 'mai-pro-engine' ),
+					'section'         => $this->section_id,
+					'settings'        => $this->get_setting_id( $this->settings_field, 'banner_featured_image' ),
+					'priority'        => 10,
+					'type'            => 'checkbox',
+					'active_callback' => function() use ( $wp_customize ) {
+						return ( (bool) ! $wp_customize->get_setting( $this->get_setting_id( 'banner_disable' ) )->value() && $this->is_banner_area_enabled_globally( $wp_customize ) );
+					},
+				)
+			);
 
-		// }
+		}
 
-		// if ( $this->has_setting( 'layout' ) || $this->has_setting( 'layout_post_type' ) ) {
+		if ( $this->has_setting( 'layout_archive' ) || $this->has_setting( 'layout_single' ) ) {
 
-		// 	// Layouts break.
-		// 	$wp_customize->add_setting(
-		// 		$this->get_setting_id( 'cpt_archive_layouts_break' ),
-		// 		array(
-		// 			'default' => '',
-		// 			'type'    => 'option',
-		// 		)
-		// 	);
-		// 	$wp_customize->add_control(
-		// 		new Mai_Customize_Control_Break( $wp_customize,
-		// 			$this->prefix . 'cpt_archive_layouts_break',
-		// 			array(
-		// 				'label'    => __( 'Layouts', 'mai-pro-engine' ),
-		// 				'section'  => $this->section_id,
-		// 				'settings' => false,
-		// 			)
-		// 		)
-		// 	);
+			// Layouts break.
+			$wp_customize->add_setting(
+				$this->get_setting_id( 'layouts_break' ),
+				array(
+					'default' => '',
+					'type'    => 'option',
+				)
+			);
+			$wp_customize->add_control(
+				new Mai_Customize_Control_Break( $wp_customize,
+					$this->prefix . 'layouts_break',
+					array(
+						'label'    => __( 'Layouts', 'mai-pro-engine' ),
+						'section'  => $this->section_id,
+						'settings' => false,
+					)
+				)
+			);
 
-		// }
+		}
 
-		// // Archive Layout.
-		// if ( $this->has_setting( 'layout' ) ) {
+		// Archives Layout.
+		if ( $this->has_setting( 'layout_archive' ) ) {
 
-		// 	$wp_customize->add_setting(
-		// 		$this->get_setting_id( 'layout' ),
-		// 		array(
-		// 			'default'           => sanitize_key( mai_get_default_cpt_option( 'layout' ) ),
-		// 			'type'              => 'option',
-		// 			'sanitize_callback' => 'sanitize_key',
-		// 		)
-		// 	);
-		// 	$wp_customize->add_control(
-		// 		$this->prefix . 'layout',
-		// 		array(
-		// 			'label'    => __( 'Archives', 'mai-pro-engine' ),
-		// 			'section'  => $this->section_id,
-		// 			'settings' => $this->get_setting_id( 'layout' ),
-		// 			'type'     => 'select',
-		// 			'choices'  => array_merge( array( '' => __( '- Archives Default -', 'mai-pro-engine' ) ), genesis_get_layouts_for_customizer() ),
-		// 		)
-		// 	);
+			$wp_customize->add_setting(
+				$this->get_setting_id( 'layout_archive' ),
+				array(
+					'default'           => sanitize_key( mai_get_default_cpt_option( 'layout_archive', $this->name ) ),
+					'type'              => 'option',
+					'sanitize_callback' => 'sanitize_key',
+				)
+			);
+			$wp_customize->add_control(
+				$this->prefix . 'layout_archive',
+				array(
+					'label'    => __( 'Archives', 'mai-pro-engine' ),
+					'section'  => $this->section_id,
+					'settings' => $this->get_setting_id( 'layout_archive' ),
+					'type'     => 'select',
+					'choices'  => array_merge( array( '' => __( '- Archives Default -', 'mai-pro-engine' ) ), genesis_get_layouts_for_customizer() ),
+				)
+			);
 
-		// }
+		}
 
-		// // Single layout (saves to genesis-settings option).
-		// if ( $this->has_setting( 'layout_post_type' ) ) {
+		// Single layout.
+		if ( $this->has_setting( 'layout_single' ) ) {
 
-		// 	$wp_customize->add_setting(
-		// 		$this->get_setting_id( $this->genesis_settings, $this->singular_layout_key ),
-		// 		array(
-		// 			'default'           => sanitize_key( mai_get_default_option( $this->singular_layout_key ) ),
-		// 			'type'              => 'option',
-		// 			'sanitize_callback' => 'sanitize_key',
-		// 		)
-		// 	);
-		// 	$wp_customize->add_control(
-		// 		$this->prefix . $this->singular_layout_key,
-		// 		array(
-		// 			'label'    => __( 'Single Entries', 'mai-pro-engine' ),
-		// 			'section'  => $this->section_id,
-		// 			'settings' => $this->get_setting_id( $this->genesis_settings, $this->singular_layout_key ),
-		// 			'type'     => 'select',
-		// 			'choices'  => array_merge( array( '' => __( '- Site Default -', 'mai-pro-engine' ) ), genesis_get_layouts_for_customizer() ),
-		// 		)
-		// 	);
+			$wp_customize->add_setting(
+				$this->get_setting_id( 'layout_single' ),
+				array(
+					'default'           => sanitize_key( mai_get_default_cpt_option( 'layout_single', $this->name ) ),
+					'type'              => 'option',
+					'sanitize_callback' => 'sanitize_key',
+				)
+			);
+			$wp_customize->add_control(
+				$this->prefix . 'layout_single',
+				array(
+					'label'    => __( 'Single Entries', 'mai-pro-engine' ),
+					'section'  => $this->section_id,
+					'settings' => $this->get_setting_id( 'layout_single' ),
+					'type'     => 'select',
+					'choices'  => array_merge( array( '' => __( '- Site Default -', 'mai-pro-engine' ) ), genesis_get_layouts_for_customizer() ),
+				)
+			);
 
-		// }
+		}
 
-		// if ( $this->has_setting( 'singular_image_post_type' ) || $this->has_setting( 'remove_meta_post_type' ) ) {
+		if ( $this->has_setting( 'singular_image_location' ) || $this->has_setting( 'remove_meta_single' ) ) {
 
-		// 	// Single Entry settings break.
-		// 	$wp_customize->add_setting(
-		// 		$this->get_setting_id( 'cpt_singular_entries_break' ),
-		// 		array(
-		// 			'default' => '',
-		// 			'type'    => 'option',
-		// 		)
-		// 	);
-		// 	$wp_customize->add_control(
-		// 		new Mai_Customize_Control_Break( $wp_customize,
-		// 			$this->prefix . 'cpt_singular_entries_break',
-		// 			array(
-		// 				'label'    => __( 'Single Entries', 'mai-pro-engine' ),
-		// 				'section'  => $this->section_id,
-		// 				'settings' => false,
-		// 			)
-		// 		)
-		// 	);
+			// Single Entry settings break.
+			$wp_customize->add_setting(
+				$this->get_setting_id( 'singular_break' ),
+				array(
+					'default' => '',
+					'type'    => 'option',
+				)
+			);
+			$wp_customize->add_control(
+				new Mai_Customize_Control_Break( $wp_customize,
+					$this->prefix . 'singular_break',
+					array(
+						'label'    => __( 'Single Entries', 'mai-pro-engine' ),
+						'section'  => $this->section_id,
+						'settings' => false,
+					)
+				)
+			);
 
-		// }
+		}
 
-		// // Featured Image.
-		// if ( $this->has_setting( 'singular_image_post_type' ) ) {
+		// Featured Image.
+		if ( $this->has_setting( 'singular_image_location' ) ) {
 
-		// 	// Featured Image heading.
-		// 	$wp_customize->add_setting(
-		// 		$this->get_setting_id( 'cpt_featured_image_customizer_heading' ),
-		// 		array(
-		// 			'default' => '',
-		// 			'type'    => 'option',
-		// 		)
-		// 	);
-		// 	$wp_customize->add_control(
-		// 		new Mai_Customize_Control_Content( $wp_customize,
-		// 			$this->prefix . 'cpt_featured_image_customizer_heading',
-		// 			array(
-		// 				'label'    => __( 'Featured Image', 'mai-pro-engine' ),
-		// 				'section'  => $this->section_id,
-		// 				'settings' => false,
-		// 			)
-		// 		)
-		// 	);
+			// Featured Image heading.
+			$wp_customize->add_setting(
+				$this->get_setting_id( 'singular_image_location_heading' ),
+				array(
+					'default' => '',
+					'type'    => 'option',
+				)
+			);
+			$wp_customize->add_control(
+				new Mai_Customize_Control_Content( $wp_customize,
+					$this->prefix . 'singular_image_location_heading',
+					array(
+						'label'    => __( 'Featured Image', 'mai-pro-engine' ),
+						'section'  => $this->section_id,
+						'settings' => false,
+					)
+				)
+			);
 
-		// 	// Featured Image (saves to genesis-settings option).
-		// 	$wp_customize->add_setting(
-		// 		$this->get_setting_id( $this->genesis_settings, $this->singular_image_key ),
-		// 		array(
-		// 			'default'           => mai_sanitize_one_zero( mai_get_default_option( $this->singular_image_key ) ),
-		// 			'type'              => 'option',
-		// 			'sanitize_callback' => 'mai_sanitize_one_zero',
-		// 		)
-		// 	);
-		// 	$wp_customize->add_control(
-		// 		$this->prefix . $this->singular_image_key,
-		// 		array(
-		// 			'label'    => __( 'Display the Featured Image', 'mai-pro-engine' ),
-		// 			'section'  => $this->section_id,
-		// 			'settings' => $this->get_setting_id( $this->genesis_settings, $this->singular_image_key ),
-		// 			'type'     => 'checkbox',
-		// 		)
-		// 	);
+			// Featured Image Location.
+			$wp_customize->add_setting(
+				$this->get_setting_id( 'singular_image_location' ),
+				array(
+					'default'           => sanitize_key( mai_get_default_cpt_option( 'singular_image_location', $this->name ) ),
+					'type'              => 'option',
+					'sanitize_callback' => 'mai_sanitize_one_zero',
+				)
+			);
+			$wp_customize->add_control(
+				$this->prefix . 'singular_image_location',
+				array(
+					'label'    => __( 'Display the Featured Image', 'mai-pro-engine' ),
+					'section'  => $this->section_id,
+					'settings' => $this->get_setting_id( 'singular_image_location' ),
+					'type'     => 'select',
+					'choices'  => array(
+						'before_entry'   => __( 'Before Entry', 'mai-pro-engine' ),
+						'before_title'   => __( 'Before Title', 'mai-pro-engine' ),
+						'after_title'    => __( 'After Title', 'mai-pro-engine' ),
+						'before_content' => __( 'Before Content', 'mai-pro-engine' ),
+					),
+				)
+			);
 
-		// }
+		}
 
 		// // Entry Meta single (saves to genesis-settings option).
 		// if ( $this->has_setting( 'remove_meta_post_type' ) ) {
@@ -469,7 +477,7 @@ class Mai_Post_Type_Settings extends Mai_Post_Type {
 		// 	}
 
 		// 	$wp_customize->add_setting(
-		// 		$this->get_setting_id( $this->genesis_settings, $this->remove_meta_single_key ),
+		// 		$this->get_setting_id( $this->settings_field, $this->remove_meta_single_key ),
 		// 		array(
 		// 			'default'           =>  $this->customizer_multicheck_sanitize_key( mai_get_default_option( $this->remove_meta_single_key ) ),
 		// 			'type'              => 'option',
@@ -482,7 +490,7 @@ class Mai_Post_Type_Settings extends Mai_Post_Type {
 		// 			array(
 		// 				'label'    => __( 'Entry Meta', 'mai-pro-engine' ),
 		// 				'section'  => $this->section_id,
-		// 				'settings' => $this->get_setting_id( $this->genesis_settings, $this->remove_meta_single_key ),
+		// 				'settings' => $this->get_setting_id( $this->settings_field, $this->remove_meta_single_key ),
 		// 				'priority' => 10,
 		// 				'choices'  => $remove_meta_choices,
 		// 			)
@@ -975,9 +983,9 @@ class Mai_Post_Type_Settings extends Mai_Post_Type {
 
 	function get_setting_id( $key ) {
 		if ( 'post' === $this->name && 'posts_per_page' === $key ) {
-			return sprintf( 'posts_per_page', $key );
+			return 'posts_per_page';
 		}
-		return sprintf( "genesis-settings['post_types']['%s']['%s']", $this->name, $key );
+		return sprintf( "%s['%s']['%s']", $this->settings_field, $this->name, $key );
 	}
 
 	/**
@@ -1000,7 +1008,7 @@ class Mai_Post_Type_Settings extends Mai_Post_Type {
 	 * @return  string  Option name as key of settings field.
 	 */
 	function get_genesis_setting_id( $key ) {
-		return sprintf( '%s[%s]', $this->genesis_settings, $key );
+		return sprintf( '%s[%s]', $this->settings_field, $key );
 	}
 
 	/**

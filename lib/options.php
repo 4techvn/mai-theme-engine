@@ -65,6 +65,18 @@ function mai_get_default_option( $key ) {
 }
 
 /**
+ * Get a default CPT option by name.
+ *
+ * @param  string  $key  The option name.
+ *
+ * @return string  The option value.
+ */
+function mai_get_default_cpt_option( $key, $post_type = 'post' ) {
+	$options = mai_get_default_options( $post_type );
+	return $options[$post_type][$key];
+}
+
+/**
  * Get all of the default options.
  *
  * @return  array  The options.
@@ -111,7 +123,7 @@ function mai_get_default_options() {
 		// Mai Layouts.
 		// 'layout_page'               => '',
 		// 'layout_post'               => '',
-		'layout_archive'            => 'full-width-content',
+		// 'layout_archive'            => 'full-width-content',
 		// Mai Utility.
 		'mai_db_version'            => MAI_PRO_ENGINE_DB_VERSION,
 	);
@@ -167,17 +179,16 @@ function mai_get_default_options() {
 	return apply_filters( 'genesis_theme_settings_defaults', $defaults );
 }
 
-/**
- * Get a default CPT option by name.
- *
- * @param  string  $key  The option name.
- *
- * @return string  The option value.
- */
-function mai_get_default_cpt_option( $key, $post_type = 'post' ) {
-	$options = mai_get_default_cpt_options( $post_type );
-	return $options[$key];
-}
+//
+//
+//
+//
+// WE SHOULDN'T NEED ANY OF THIS STUFF BELOW HERE.
+//
+//
+//
+//
+
 
 /**
  * Get all of the default CPT options.
