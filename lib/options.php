@@ -114,7 +114,7 @@ function mai_get_default_options() {
 		'image_location'            => 'before_title',
 		'more_link'                 => 0,
 		'more_link_text'            => '',
-		// 'remove_meta'               => array(),
+		'remove_meta'               => array(),
 		'posts_per_page'            => get_option( 'posts_per_page' ),
 		// Mai Singular.
 		// 'singular_image_page'       => 1,
