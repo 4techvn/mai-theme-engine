@@ -588,6 +588,7 @@ input[type="submit"],
 	-ms-flex-align: center;-webkit-box-align: center;align-items: center;
 	cursor: pointer;
 	width: auto;
+	white-space: normal;
 	background-image: none;
 	background-color: #323232;
 	color: rgba(255, 255, 255, 1);
@@ -597,9 +598,10 @@ input[type="submit"],
 	text-align: center;
 	text-decoration: none;
 	text-shadow: none;
+	margin: 0;
 	border: none;
 	border-radius: 0;
-	white-space: normal;
+	white-space: nowrap;
 	-webkit-box-shadow: none;box-shadow: none;
 	-webkit-font-smoothing: antialiased;
 }
@@ -871,6 +873,7 @@ td {
 	margin-bottom: 30px;
 }
 
+.callout:empty,
 .entry-header:empty,
 .entry .entry-header:empty,
 .flex-entry .entry-header:empty,
@@ -3187,6 +3190,10 @@ p.entry-meta {
 	color: #555;
 	font-size: 0.8em;
 	margin-bottom: 16px;
+}
+
+.entry-header .entry-meta > * {
+	display: inline-block;
 }
 
 .entry-header .entry-meta a {
