@@ -5,11 +5,7 @@
  * Plugin URI:      https://maipro.io/
  * Description:     The Mai Pro Engine plugin
  *
-<<<<<<< HEAD
- * Version:         1.1.7
-=======
  * Version:         1.1.8
->>>>>>> 6ed1ca9... Sections template no longer loads a template file
  *
  * GitHub URI:      maiprowp/mai-pro-engine
  *
@@ -95,11 +91,7 @@ final class Mai_Pro_Engine {
 	private function setup_constants() {
 
 		// Plugin version.
-<<<<<<< HEAD
-		define( 'MAI_PRO_ENGINE_VERSION', '1.1.7' );
-=======
 		define( 'MAI_PRO_ENGINE_VERSION', '1.1.8' );
->>>>>>> 6ed1ca9... Sections template no longer loads a template file
 
 		// DB version.
 		define( 'MAI_PRO_ENGINE_DB_VERSION', '1161' );
@@ -166,7 +158,7 @@ final class Mai_Pro_Engine {
 				'primary'      => __( 'Primary Menu', 'mai-pro-engine' ),
 				'header_left'  => __( 'Header Left Menu', 'mai-pro-engine' ),
 				'header_right' => __( 'Header Right Menu', 'mai-pro-engine' ),
-				'secondary'    => __( 'Secondary Menu', 'mai-pro-engine' ),
+				'secondary'    => __( 'Footer Menu', 'mai-pro-engine' ),
 				'mobile'       => __( 'Mobile Menu', 'mai-pro-engine' ),
 			) );
 
@@ -308,7 +300,6 @@ final class Mai_Pro_Engine {
 			foreach ( glob( MAI_PRO_ENGINE_LIB_DIR . '*.php' ) as $file ) { include_once $file; }
 			foreach ( glob( MAI_PRO_ENGINE_LIB_DIR . 'admin/*.php' ) as $file ) { include_once $file; }
 			foreach ( glob( MAI_PRO_ENGINE_LIB_DIR . 'functions/*.php' ) as $file ) { include_once $file; }
-			foreach ( glob( MAI_PRO_ENGINE_LIB_DIR . 'integrations/*.php' ) as $file ) { include_once $file; }
 			foreach ( glob( MAI_PRO_ENGINE_LIB_DIR . 'settings/customizer/*.php' ) as $file ) { include_once $file; }
 			foreach ( glob( MAI_PRO_ENGINE_LIB_DIR . 'settings/metaboxes/*.php' ) as $file ) { include_once $file; }
 			foreach ( glob( MAI_PRO_ENGINE_LIB_DIR . 'structure/*.php' ) as $file ) { include_once $file; }
