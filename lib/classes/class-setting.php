@@ -43,8 +43,9 @@ posts_nav
  *
  * @return  [type]              [description]
  */
-function mai_get_setting( $key ) {
+function mai_get_setting( $key, $post_type = '' ) {
 
+	// TODO: Do we need this filter? Are all settings in genesis_options filter which does the same thing?
 	// Allow devs to short circuit this function.
 	$pre = apply_filters( "mai_pre_get_setting_{$key}", null );
 	if ( null !== $pre ) {
@@ -61,7 +62,7 @@ function mai_get_setting( $key ) {
 	}
 
 	// New setting object.
-	$setting = new Mai_Setting( $key );
+	$setting = new Mai_Setting( $key, $post_type );
 
 	// Setting has not been previously been cached, so cache now.
 	$settings_cache[ $key ] = is_array( $setting->value ) ? stripslashes_deep( $setting->value ) : stripslashes( wp_kses_decode_entities( $setting->value ) );

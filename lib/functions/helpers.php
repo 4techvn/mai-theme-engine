@@ -759,6 +759,11 @@ function mai_is_admin_woo_shop_page() {
 	return false;
 }
 
+/**
+ * Get post types that will have customizer settings.
+ *
+ * @return  array  Post types names.
+ */
 function mai_get_post_type_settings_post_types() {
 	$post_types = get_post_types( array(
 		'public'  => true,

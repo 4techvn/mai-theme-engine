@@ -36,7 +36,10 @@ abstract class Mai_Post_Type {
 			'banner_featured_image',      // Singular
 			'layout_archive',             // Archives
 			'layout_single',              // Singular
-			'featured_image_location',    // Singular
+			'featured_image',
+			'featured_image_location',
+			// 'featured_image_size',
+			// 'featured_image_alignment',
 			'remove_meta_single',         // Singular
 			'enable_content_archive_settings',
 			'columns',
@@ -47,7 +50,7 @@ abstract class Mai_Post_Type {
 			'image_size',
 			'image_alignment',
 			'more_link',
-			'remove_meta',
+			'remove_meta_archive',
 			'posts_per_page',
 			'posts_nav',
 		);
@@ -103,7 +106,7 @@ abstract class Mai_Post_Type {
 			$settings['image_size']                      = false;
 			$settings['image_alignment']                 = false;
 			$settings['more_link']                       = false;
-			$settings['remove_meta']                     = false;
+			$settings['remove_meta_archive']             = false;
 			$settings['posts_per_page']                  = false;
 			$settings['posts_nav']                       = false;
 		}
@@ -121,7 +124,11 @@ abstract class Mai_Post_Type {
 
 		// If no featured image support.
 		if ( ! $this->supports( 'thumbnail' ) ) {
+			$settings['banner_featured_image']           = false;
+			$settings['featured_image']                  = false;
 			$settings['featured_image_location']         = false;
+			// $settings['featured_image_size']             = false;
+			// $settings['featured_image_alignment']        = false;
 			$settings['content_archive_thumbnail']       = false;
 			$settings['image_location']                  = false;
 			$settings['image_size']                      = false;

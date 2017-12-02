@@ -53,7 +53,7 @@ function mai_register_customizer_site_layouts_settings( $wp_customize ) {
 	$wp_customize->add_setting(
 		_mai_customizer_get_field_name( $settings_field, 'layout_archive' ),
 		array(
-			'default'           => sanitize_key( mai_get_default_option( 'layout_archive' ) ),
+			'default'           => sanitize_key( mai_get_default_setting( 'layout_archive' ) ),
 			'type'              => 'option',
 			'sanitize_callback' => 'sanitize_key',
 		)
@@ -74,7 +74,7 @@ function mai_register_customizer_site_layouts_settings( $wp_customize ) {
 	// $wp_customize->add_setting(
 	// 	_mai_customizer_get_field_name( $settings_field, 'layout_page' ),
 	// 	array(
-	// 		'default'           => sanitize_key( mai_get_default_option( 'layout_page' ) ),
+	// 		'default'           => sanitize_key( mai_get_default_setting( 'layout_page' ) ),
 	// 		'type'              => 'option',
 	// 		'sanitize_callback' => 'sanitize_key',
 	// 	)
@@ -95,7 +95,7 @@ function mai_register_customizer_site_layouts_settings( $wp_customize ) {
 	// $wp_customize->add_setting(
 	// 	_mai_customizer_get_field_name( $settings_field, 'layout_post' ),
 	// 	array(
-	// 		'default'           => sanitize_key( mai_get_default_option( 'layout_post' ) ),
+	// 		'default'           => sanitize_key( mai_get_default_setting( 'layout_post' ) ),
 	// 		'type'              => 'option',
 	// 		'sanitize_callback' => 'sanitize_key',
 	// 	)
