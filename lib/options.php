@@ -131,12 +131,12 @@ function mai_get_default_settings() {
  *
  * @return string  The option value.
  */
-function mai_get_default_post_type_setting( $key, $post_type = 'post' ) {
-	$settings = mai_get_default_post_type_settings();
-	return $settings[$post_type][$key];
+function mai_get_default_content_setting( $key, $name = 'post' ) {
+	$settings = mai_get_default_content_settings();
+	return $settings[$name][$key];
 }
 
-function mai_get_default_post_type_settings() {
+function mai_get_default_content_settings() {
 
 	$defaults = array();
 
@@ -145,43 +145,43 @@ function mai_get_default_post_type_settings() {
 	 *
 	 * @return  array  Post types names.
 	 */
-	$post_types = mai_get_post_type_settings_post_types();
+	$names = mai_get_settings_content_names();
 
-	if ( $post_types ) {
+	if ( $names ) {
 
 		// Make sure post is the first post type in the array.
-		if ( isset( $post_types['post'] ) ) {
-			unset( $post_types['post'] );
-			array_unshift( $post_types, 'post' );
+		if ( isset( $names['post'] ) ) {
+			unset( $names['post'] );
+			array_unshift( $names, 'post' );
 		}
 
 		// Loop through em.
-		foreach ( $post_types as $post_type ) {
-			$defaults[ $post_type ] = array(
+		foreach ( $names as $name ) {
+			$defaults[ $name ] = array(
 				'banner_background_color'         => '',
 				'banner_id'                       => '',
 				'hide_banner'                     => 0,
 				'banner_disable'                  => 0,
 				'banner_disable_taxonomies'       => '',
 				'banner_featured_image'           => 0,
-				'layout_archive'                  => ( 'post' === $post_type ) ? '' : $defaults['post']['layout_archive'],
+				'layout_archive'                  => ( 'post' === $name ) ? '' : $defaults['post']['layout_archive'],
 				'layout_single'                   => '',
-				'featured_image_location'         => ( 'post' === $post_type ) ? 'before_entry' : $defaults['post']['featured_image_location'],
+				'featured_image_location'         => ( 'post' === $name ) ? 'before_entry' : $defaults['post']['featured_image_location'],
 				'remove_meta_single'              => '',
 				'enable_content_archive_settings' => 0,
 				// TODO: How to handle these defaults?
-				'columns'                         => ( 'post' === $post_type ) ? '' : $defaults['post']['columns'],
-				'content_archive'                 => ( 'post' === $post_type ) ? '' : $defaults['post']['content_archive'],
-				'content_archive_limit'           => ( 'post' === $post_type ) ? '' : $defaults['post']['content_archive_limit'],
-				'content_archive_thumbnail'       => ( 'post' === $post_type ) ? '' : $defaults['post']['content_archive_thumbnail'],
-				'image_location'                  => ( 'post' === $post_type ) ? '' : $defaults['post']['image_location'],
-				'image_size'                      => ( 'post' === $post_type ) ? '' : $defaults['post']['image_size'],
-				'image_alignment'                 => ( 'post' === $post_type ) ? '' : $defaults['post']['image_alignment'],
-				'more_link'                       => ( 'post' === $post_type ) ? '' : $defaults['post']['more_link'],
-				'more_link_text'                  => ( 'post' === $post_type ) ? '' : $defaults['post']['more_link_text'],
-				'remove_meta_archive'             => ( 'post' === $post_type ) ? '' : $defaults['post']['remove_meta_archive'],
-				'posts_per_page'                  => ( 'post' === $post_type ) ? '' : $defaults['post']['posts_per_page'],
-				'posts_nav'                       => ( 'post' === $post_type ) ? '' : $defaults['post']['posts_nav'],
+				'columns'                         => ( 'post' === $name ) ? 1 : $defaults['post']['columns'],
+				'content_archive'                 => ( 'post' === $name ) ? 'excerpts' : $defaults['post']['content_archive'],
+				'content_archive_limit'           => ( 'post' === $name ) ? 0 : $defaults['post']['content_archive_limit'],
+				'content_archive_thumbnail'       => ( 'post' === $name ) ? 1 : $defaults['post']['content_archive_thumbnail'],
+				'image_location'                  => ( 'post' === $name ) ? 'before_entry' : $defaults['post']['image_location'],
+				'image_size'                      => ( 'post' === $name ) ? 'one-third' : $defaults['post']['image_size'],
+				'image_alignment'                 => ( 'post' === $name ) ? '' : $defaults['post']['image_alignment'],
+				'more_link'                       => ( 'post' === $name ) ? '' : $defaults['post']['more_link'],
+				'more_link_text'                  => ( 'post' === $name ) ? '' : $defaults['post']['more_link_text'],
+				'remove_meta_archive'             => ( 'post' === $name ) ? '' : $defaults['post']['remove_meta_archive'],
+				'posts_per_page'                  => ( 'post' === $name ) ? get_option( 'posts_per_page' ) : $defaults['post']['posts_per_page'],
+				'posts_nav'                       => ( 'post' === $name ) ? 'numeric' : $defaults['post']['posts_nav'],
 			);
 		}
 		if ( isset( $defaults['post']['enable_content_archive_settings'] ) ) {
@@ -190,10 +190,12 @@ function mai_get_default_post_type_settings() {
 		}
 	}
 
-	return apply_filters( 'mai_post_type_settings_defaults', $defaults );
+	return apply_filters( 'mai_content_settings_defaults', $defaults );
 }
 
 /**
+ * TODO: Is this used still!?!?!
+ *
  * Get all of the default CPT options.
  *
  * @return  array  The options.

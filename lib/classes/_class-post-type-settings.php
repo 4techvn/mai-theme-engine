@@ -33,7 +33,7 @@
  *
  * @return  void
  */
-add_action( 'init', 'mai_post_type_settings_init', 999 );
+// add_action( 'init', 'mai_post_type_settings_init', 999 );
 function mai_post_type_settings_init() {
 
 	// Get post types.
@@ -69,7 +69,7 @@ class Mai_Post_Type_Settings extends Mai_Post_Type {
 		// Construct child params.
 		// $this->genesis_settings = 'genesis-settings';
 		$this->genesis_settings = GENESIS_SETTINGS_FIELD;
-		$this->settings_field   = 'mai_post_type_settings';
+		$this->settings_field   = 'mai_content_settings';
 		$this->section_id       = sprintf( 'mai_%s_settings', $this->name );
 		$this->prefix           = sprintf( '%s_', $this->name );
 
@@ -350,6 +350,30 @@ class Mai_Post_Type_Settings extends Mai_Post_Type {
 		// Archives Layout.
 		if ( $this->has_setting( 'layout_archive' ) ) {
 
+			// Single layout.
+			if ( $this->has_setting( 'layout_single' ) ) {
+
+				$wp_customize->add_setting(
+					$this->get_setting_id( 'layout_single' ),
+					array(
+						'default'           => sanitize_key( mai_get_default_post_type_setting( 'layout_single', $this->name ) ),
+						'type'              => 'option',
+						'sanitize_callback' => 'sanitize_key',
+					)
+				);
+				$wp_customize->add_control(
+					$this->prefix . 'layout_single',
+					array(
+						'label'    => __( 'Single Entries', 'mai-pro-engine' ),
+						'section'  => $this->section_id,
+						'settings' => $this->get_setting_id( 'layout_single' ),
+						'type'     => 'select',
+						'choices'  => array_merge( array( '' => __( '- Site Default -', 'mai-pro-engine' ) ), genesis_get_layouts_for_customizer() ),
+					)
+				);
+
+			}
+
 			$wp_customize->add_setting(
 				$this->get_setting_id( 'layout_archive' ),
 				array(
@@ -366,30 +390,6 @@ class Mai_Post_Type_Settings extends Mai_Post_Type {
 					'settings' => $this->get_setting_id( 'layout_archive' ),
 					'type'     => 'select',
 					'choices'  => array_merge( array( '' => __( '- Archives Default -', 'mai-pro-engine' ) ), genesis_get_layouts_for_customizer() ),
-				)
-			);
-
-		}
-
-		// Single layout.
-		if ( $this->has_setting( 'layout_single' ) ) {
-
-			$wp_customize->add_setting(
-				$this->get_setting_id( 'layout_single' ),
-				array(
-					'default'           => sanitize_key( mai_get_default_post_type_setting( 'layout_single', $this->name ) ),
-					'type'              => 'option',
-					'sanitize_callback' => 'sanitize_key',
-				)
-			);
-			$wp_customize->add_control(
-				$this->prefix . 'layout_single',
-				array(
-					'label'    => __( 'Single Entries', 'mai-pro-engine' ),
-					'section'  => $this->section_id,
-					'settings' => $this->get_setting_id( 'layout_single' ),
-					'type'     => 'select',
-					'choices'  => array_merge( array( '' => __( '- Site Default -', 'mai-pro-engine' ) ), genesis_get_layouts_for_customizer() ),
 				)
 			);
 

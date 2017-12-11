@@ -760,17 +760,25 @@ function mai_is_admin_woo_shop_page() {
 }
 
 /**
- * Get post types that will have customizer settings.
+ * Get content types that will have customizer settings.
+ *
+ * @access  private.
  *
  * @return  array  Post types names.
  */
-function mai_get_post_type_settings_post_types() {
-	$post_types = get_post_types( array(
+function mai_get_settings_content_names() {
+	$names = get_post_types( array(
 		'public'  => true,
 		'show_ui' => true,
 	), 'names' );
-	unset( $post_types['attachment'] );
-	return apply_filters( 'mai_post_type_settings_post_types', $post_types );
+	$names = array_keys( $names );
+	if ( in_array( 'attachment', $names ) ) {
+		$names = array_diff( $names, array( 'attachment' ) );
+	}
+	$names[] = 'search_results';
+	$names[] = 'author_archives';
+	// Don't use this filter as it may change.
+	return apply_filters( 'mai_content_settings_names', $names );
 }
 
 /**
