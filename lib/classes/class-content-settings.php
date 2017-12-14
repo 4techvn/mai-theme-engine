@@ -199,7 +199,7 @@ class Mai_Content_Settings {
 				$settings['image_alignment']                 = false;
 			}
 
-		} elseif ( in_array( $this->name, array( 'search_results', 'author_archives' ) ) ) {
+		} elseif ( in_array( $this->name, array( 'search', 'author' ) ) ) {
 			$settings['banner_featured_image']               = false;
 		}
 
@@ -216,15 +216,8 @@ class Mai_Content_Settings {
 		return apply_filters( 'mai_content_enabled_settings', $settings, $this->name );
 	}
 
-	// function post_type_object() {
-	// 	if ( post_type_exists( $this->name ) ) {
-	// 		return get_post_type_object( $this->name );
-	// 	}
-	// 	return '';
-	// }
-
 	public function has_archives() {
-		if ( in_array( $this->name, array( 'search_results', 'author_archives' ) ) ) {
+		if ( in_array( $this->name, array( 'search', 'author' ) ) ) {
 			return true;
 		} elseif ( $this->is_post_type ) {
 			// If the post type itself has an archive.
@@ -261,14 +254,22 @@ class Mai_Content_Settings {
 	 *
 	 * @return  void.
 	 */
-	function customizer_settings( $wp_customize ) {
+	public function customizer_settings( $wp_customize ) {
 
-		// Mai {content name} Settings.
+		// Add panel.
+		$wp_customize->add_panel( 'mai_content_settings', array(
+			'title'       => __( 'Mai Content Settings', 'mai-pro-engine' ),
+			'description' => esc_html__( 'Adjust your Header and Navigation sections.' ),
+			'priority'    => 38,
+		) );
+
+		// Mai {content name} Settings section.
 		$wp_customize->add_section(
 			$this->section_id,
 			array(
-				'title'    => sprintf( __( 'Mai %s Settings', 'mai-pro-engine' ), ( $this->is_post_type ? $this->post_type_object->label : ucwords( str_replace( '_', ' ', $this->name ) ) ) ),
-				'priority' => '39',
+				'title'    => sprintf( __( '%s Settings', 'mai-pro-engine' ), ( $this->is_post_type ? $this->post_type_object->label : ucwords( str_replace( '_', ' ', $this->name ) ) ) ),
+				'panel'    => 'mai_content_settings',
+				// 'priority' => '39',
 			)
 		);
 
