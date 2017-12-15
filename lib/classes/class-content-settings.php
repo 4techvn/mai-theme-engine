@@ -414,10 +414,14 @@ class Mai_Content_Settings {
 			// Disable banner taxonomies.
 			$disable_taxonomies = array();
 			$taxonomies         = get_object_taxonomies( $this->name, 'objects' );
+
 			if ( $taxonomies ) {
+
 				foreach ( $taxonomies as $taxo ) {
 					if ( $this->name == mai_get_taxonomy_post_type( $taxo ) ) {
-						$disable_taxonomies[ $taxo->name ] = $taxo->label;
+						if ( $taxo->public && $taxo->show_ui ) {
+							$disable_taxonomies[ $taxo->name ] = $taxo->label;
+						}
 					}
 				}
 
