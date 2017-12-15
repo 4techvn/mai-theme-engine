@@ -202,7 +202,7 @@ class Mai_Setting {
 	 * @return  string  The post type name, or empty string.
 	 */
 	public function get_post_type( $post_type = '' ) {
-		if ( $post_type ) {
+		if ( $post_type && post_type_exists( $post_type ) ) {
 			return $post_type;
 		}
 		if ( is_singular() ) {
