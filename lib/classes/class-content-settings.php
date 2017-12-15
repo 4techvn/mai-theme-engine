@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Setup CPT's customizer and Archive Settings fields.
+ * Setup customizer content settings fields.
  *
  * Possible keys/settings:
  *

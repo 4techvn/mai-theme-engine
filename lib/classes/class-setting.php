@@ -47,10 +47,10 @@ function mai_get_setting( $key, $post_type = '' ) {
 
 	// TODO: Do we need this filter? Are all settings in genesis_options filter which does the same thing?
 	// Allow devs to short circuit this function.
-	$pre = apply_filters( "mai_pre_get_setting_{$key}", null );
-	if ( null !== $pre ) {
-		return $pre;
-	}
+	// $pre = apply_filters( "mai_pre_get_setting_{$key}", null );
+	// if ( null !== $pre ) {
+	// 	return $pre;
+	// }
 
 	// Setup caches.
 	static $settings_cache = array();
@@ -78,26 +78,26 @@ class Mai_Setting {
 
 	protected $key;
 	protected $value;
-	protected $singular_meta;
-	protected $direct;
-	protected $check;
-	protected $fallback;
-	protected $post_type;
-	protected $cpts;
+	// protected $singular_meta;
+	// protected $direct;
+	// protected $check;
+	// protected $fallback;
+	protected $content_type;
+	// protected $cpts;
 
 	/**
 	 * Setup the object.
 	 *
-	 * @param  string  $name  The setting name. May be a placeholder if the key uses the post_type name in it.
+	 * @param  string  $name  The setting name. May be a placeholder if the key uses the content_type name in it.
 	 */
-	function __construct( $key, $post_type = '' ) {
-		$this->key           = $key;
-		$this->value         = $this->get_value();
-		$this->post_type     = $this->get_post_type( $post_type );
-		$this->singular_meta = $this->singular_meta(); // bool
-		$this->direct        = $this->direct();        // bool
-		$this->fallback      = $this->fallback();      // bool
-		$this->cpts          = genesis_get_cpt_archive_types_names();
+	function __construct( $key, $content_type = '' ) {
+		$this->key              = $key;
+		$this->value            = $this->get_value();
+		$this->content_type     = $this->get_content_type( $content_type );
+		// $this->singular_meta = $this->singular_meta(); // bool
+		// $this->direct        = $this->direct();        // bool
+		// $this->fallback      = $this->fallback();      // bool
+		// $this->cpts          = genesis_get_cpt_archive_types_names();
 	}
 
 	/**
@@ -131,7 +131,7 @@ class Mai_Setting {
 			case 'banner_disable': // All single post_type
 			case 'banner_disable_taxonomies':
 			case 'banner_featured_image':
-				$value = $this->get_post_type_setting( $this->key );
+				$value = $this->get_content_type_setting( $this->key );
 				break;
 			case 'layout_archive_post_type':
 				$value = '';
@@ -201,39 +201,34 @@ class Mai_Setting {
 	 *
 	 * @return  string  The post type name, or empty string.
 	 */
-	public function get_post_type( $post_type = '' ) {
-		if ( $post_type && post_type_exists( $post_type ) ) {
-			return $post_type;
+	public function get_content_type( $content_type = '' ) {
+		if ( $content_type && ( post_type_exists( $content_type ) || in_array( $content_type, array( 'author', 'search' ) ) ) ) {
+			return $content_type;
 		}
 		if ( is_singular() ) {
-			$post_type = get_post_type();
-			if ( ! $post_type ) {
-				$post_type = get_query_var( 'post_type' );
+			$content_type = get_post_type();
+			if ( ! $content_type ) {
+				$content_type = get_query_var( 'post_type' );
 			}
 		}
 		elseif ( mai_is_content_archive() ) {
-			$post_type = mai_get_archive_post_type();
+			$content_type = mai_get_archive_content_type();
 		}
-		return $post_type;
+		return $content_type;
 	}
 
-	public function get_post_type_setting( $key ) {
-		$mai_post_type = new Mai_Post_Type( $this->post_type );
-		if ( $mai_post_type->is_default_post_setting( $key ) ) {
-			// Return the option.
-			return genesis_get_option( $key );
+	public function get_content_type_setting( $key ) {
+		$settings = get_option( 'mai_content_settings' );
+		if ( isset( $settings[ $key ] ) ) {
+			return $settings[ $key ];
 		}
-		// Get the post type array of options.
-		$settings = genesis_get_option( $this->post_type );
-		// Return just the post type option we want.
-		return $settings[ $key ];
+		return null;
 	}
-
 
 	public function get_banner_id_by_post_id( $post_id ) {
 		$image_id = get_post_meta( $post_id, $this->key, true );
 		// If no image and featured images as banner is enabled.
-		if ( ! $image_id && $this->get_post_type_setting( 'banner_featured_image' ) ) {
+		if ( ! $image_id && $this->get_content_type_setting( 'banner_featured_image' ) ) {
 			$image_id = get_post_thumbnail_id( $post_id );
 		}
 		return $image_id;
@@ -289,8 +284,8 @@ class Mai_Setting {
 		}
 
 		// If no banner, try a post type default.
-		if ( ! $image_id && post_type_supports( $this->post_type, 'mai-settings' ) ) {
-			$image_id = $this->get_post_type_setting( $this->key );
+		if ( ! $image_id && post_type_supports( $this->content_type, 'mai-settings' ) ) {
+			$image_id = $this->get_content_type_setting( $this->key );
 		}
 
 		/**
@@ -312,10 +307,10 @@ class Mai_Setting {
 
 	public function get_hide_banner() {
 		$hide_banner = false;
-		if ( is_singular( $this->post_type ) ) {
+		if ( is_singular( $this->content_type ) ) {
 			$hide_banner = get_post_meta( get_the_ID(), $this->key, true );
-		} elseif ( is_post_type_archive() && post_type_supports( $this->post_type, 'mai-settings' ) ) {
-			$hide_banner = $this->get_post_type_setting( $this->key );
+		} elseif ( is_post_type_archive() && post_type_supports( $this->content_type, 'mai-settings' ) ) {
+			$hide_banner = $this->get_content_type_setting( $this->key );
 		}
 		return $hide_banner;
 	}
@@ -324,7 +319,7 @@ class Mai_Setting {
 
 		$layout = '';
 
-		$post_type_key = sprintf( 'layout_%s', $this->post_type );
+		$post_type_key = sprintf( 'layout_%s', $this->content_type );
 
 		// If home page.
 		if ( is_home() ) {
@@ -356,8 +351,8 @@ class Mai_Setting {
 				}
 
 				if ( ! $layout ) {
-					if ( in_array( $this->post_type, $this->cpts ) ) {
-						$layout = genesis_get_cpt_option( 'layout_archive', $this->post_type );
+					if ( in_array( $this->content_type, $this->cpts ) ) {
+						$layout = genesis_get_cpt_option( 'layout_archive', $this->content_type );
 					} else {
 						$layout = genesis_get_option( $post_type_key );
 					}
@@ -370,7 +365,7 @@ class Mai_Setting {
 		}
 
 		// If viewing a supported post type.
-		elseif ( is_post_type_archive() && post_type_supports( $this->post_type, 'mai-settings' ) ) {
+		elseif ( is_post_type_archive() && post_type_supports( $this->content_type, 'mai-settings' ) ) {
 			$layout = genesis_get_cpt_option( 'layout_archive', $this->layout );
 			$layout = $layout ? $layout : genesis_get_option( 'layout_archive' );
 		}
@@ -427,8 +422,8 @@ class Mai_Setting {
 					// If no value.
 					if ( null === $value ) {
 						// If post type has settings and custom archive settings enabled.
-						if ( in_array( $this->post_type, $this->cpts ) && enable_content_archive_settings() ) {
-							$value = genesis_get_cpt_option( $this->key, $this->post_type );
+						if ( in_array( $this->content_type, $this->cpts ) && enable_content_archive_settings() ) {
+							$value = genesis_get_cpt_option( $this->key, $this->content_type );
 						}
 					}
 				}
@@ -436,7 +431,7 @@ class Mai_Setting {
 		}
 
 		// CPT archive. Need to check for 'mai-settings' otherwise it won't have any settings to check.
-		elseif ( is_post_type_archive() && post_type_supports( $this->post_type, 'mai-settings' ) && enable_content_archive_settings() ) {
+		elseif ( is_post_type_archive() && post_type_supports( $this->content_type, 'mai-settings' ) && enable_content_archive_settings() ) {
 			$value = genesis_get_cpt_option( $this->key );
 		}
 
@@ -453,8 +448,8 @@ class Mai_Setting {
 		if ( is_category() || is_tag() || is_tax() ) {
 			return (bool) get_term_meta( $queried_object->term_id, 'enable_content_archive_settings', true );
 		}
-		elseif ( is_post_type_archive() && post_type_supports( $this->post_type, 'mai-settings' ) ) {
-			return (bool) genesis_get_cpt_option( 'enable_content_archive_settings', $this->post_type );
+		elseif ( is_post_type_archive() && post_type_supports( $this->content_type, 'mai-settings' ) ) {
+			return (bool) genesis_get_cpt_option( 'enable_content_archive_settings', $this->content_type );
 		}
 		elseif ( is_author() ) {
 			return (bool) get_the_author_meta( 'enable_content_archive_settings', get_query_var( 'author' ) );
@@ -462,38 +457,38 @@ class Mai_Setting {
 		return false;
 	}
 
-	public function singular_meta() {
-		$keys = array(
-			'hide_banner',
-			'mai_hide_featured_image',
-		);
-		return in_array( $this->key, $keys ) ? true : false;
-	}
+	// public function singular_meta() {
+	// 	$keys = array(
+	// 		'hide_banner',
+	// 		'mai_hide_featured_image',
+	// 	);
+	// 	return in_array( $this->key, $keys ) ? true : false;
+	// }
 
-	public function singular_option() {
-		$keys = array(
-			'banner_id_post_type',
-			'banner_disable_post_type',
-		);
-		return in_array( $this->key, $keys ) ? true : false;
-	}
+	// public function singular_option() {
+	// 	$keys = array(
+	// 		'banner_id_post_type',
+	// 		'banner_disable_post_type',
+	// 	);
+	// 	return in_array( $this->key, $keys ) ? true : false;
+	// }
 
 	/**
 	 * Check the keys the require a direct value.
 	 *
 	 * @return  bool
 	 */
-	public function direct() {
+	// public function direct() {
 
-		// TODO: ADD SINGULAR KEYS HERE!
+	// 	// TODO: ADD SINGULAR KEYS HERE!
 
-		$keys = array(
-			'hide_banner',
-			'remove_loop',
-			'enable_content_archive_settings',
-		);
-		return in_array( $this->key, $keys ) ? true : false;
-	}
+	// 	$keys = array(
+	// 		'hide_banner',
+	// 		'remove_loop',
+	// 		'enable_content_archive_settings',
+	// 	);
+	// 	return in_array( $this->key, $keys ) ? true : false;
+	// }
 
 	/**
 	 * Check against the keys that need archive settings enabled.
@@ -502,6 +497,7 @@ class Mai_Setting {
 	 */
 	public function needs_archive_settings_enabled() {
 		$keys = array(
+			'columns',
 			'content_archive',
 			'content_archive_limit',
 			'content_archive_thumbnail',
@@ -519,7 +515,7 @@ class Mai_Setting {
 		}
 		// If blog, post category/tag, or custom taxo on post/page, no check.
 		// NOPE: Need to check for term specific settings. Argh.
-		// if ( is_home() || is_category() || is_tag() || ( is_tax() && in_array( $this->post_type, array( 'post', 'page' ) ) ) ) {
+		// if ( is_home() || is_category() || is_tag() || ( is_tax() && in_array( $this->content_type, array( 'post', 'page' ) ) ) ) {
 		// 	return false;
 		// }
 		// Check.
@@ -599,15 +595,15 @@ class Mai_Setting {
 					$value = $this->get_term_meta_value_in_hierarchy( $queried_object, $this->key, $this->needs_archive_settings_enabled() );
 
 					// If no value and post type has settings, and not checking for content archive settings enabled or checking and they are enabled.
-					if ( ! $value && in_array( $this->post_type, $this->cpts ) && ( ! $this->needs_archive_settings_enabled() || ( $this->needs_archive_settings_enabled() && (bool) genesis_get_cpt_option( 'enable_content_archive_settings', $this->post_type ) ) ) ) {
-						$value = genesis_get_cpt_option( $this->key, $this->post_type );
+					if ( ! $value && in_array( $this->content_type, $this->cpts ) && ( ! $this->needs_archive_settings_enabled() || ( $this->needs_archive_settings_enabled() && (bool) genesis_get_cpt_option( 'enable_content_archive_settings', $this->content_type ) ) ) ) {
+						$value = genesis_get_cpt_option( $this->key, $this->content_type );
 					}
 				}
 			}
 		}
 
 		// CPT archive. Need to check for 'mai-settings' otherwise it won't have any settings to check.
-		elseif ( is_post_type_archive() && post_type_supports( $this->post_type, 'mai-settings' ) ) {
+		elseif ( is_post_type_archive() && post_type_supports( $this->content_type, 'mai-settings' ) ) {
 
 			// Save as variable for direct call.
 			$post_type_option = genesis_get_cpt_option( $this->key );
@@ -617,7 +613,7 @@ class Mai_Setting {
 			}
 
 			// If not checking, or checking and is enabled, use as value.
-			if ( ! $this->needs_archive_settings_enabled() || ( $this->needs_archive_settings_enabled() && (bool) genesis_get_cpt_option( 'enable_content_archive_settings', $this->post_type ) ) ) {
+			if ( ! $this->needs_archive_settings_enabled() || ( $this->needs_archive_settings_enabled() && (bool) genesis_get_cpt_option( 'enable_content_archive_settings', $this->content_type ) ) ) {
 				$value = $post_type_option;
 			}
 		}

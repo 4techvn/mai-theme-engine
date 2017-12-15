@@ -42,40 +42,48 @@ function mai_is_content_archive() {
 	return false;
 }
 
-function mai_get_archive_post_type() {
+function mai_get_archive_content_type() {
 
-	static $post_type_cache = null;
+	static $content_type_cache = null;
 
-	if ( null !== $post_type_cache ) {
-		return $post_type_cache;
+	if ( null !== $content_type_cache ) {
+		return $content_type_cache;
 	}
 
-	$default   = 'post';
-	$post_type = '';
+	$default      = 'post';
+	$content_type = '';
 
 	// Term archive.
 	if ( is_tax() ) {
 		$tax = isset( get_queried_object()->taxonomy ) ? get_taxonomy( get_queried_object()->taxonomy ) : false;
 		if ( $tax ) {
-			$post_type = mai_get_taxonomy_post_type( $tax );
+			$content_type = mai_get_taxonomy_post_type( $tax );
 		}
 	}
 
 	// CPT archive - this may be called too early to use get_post_type().
 	elseif ( is_post_type_archive() ) {
-		$post_type = get_post_type();
-		if ( ! $post_type ) {
-			$post_type = get_query_var( 'post_type' );
+		$content_type = get_post_type();
+		if ( ! $content_type ) {
+			$content_type = get_query_var( 'post_type' );
 		}
 	}
 
+	elseif ( is_author() ) {
+		$content_type = 'author';
+	}
+
+	elseif ( is_search() ) {
+		$content_type = 'search';
+	}
+
 	// Post type or default.
-	$post_type = $post_type ? $post_type : $default;
+	$content_type = $content_type ? $content_type : $default;
 
 	// Update cache.
-	$post_type_cache = $post_type;
+	$content_type_cache = $content_type;
 
-	return $post_type;
+	return $content_type;
 }
 
 function mai_get_taxonomy_post_type( $tax_name_or_object ) {
@@ -104,13 +112,13 @@ function mai_get_taxonomy_post_type( $tax_name_or_object ) {
 	return apply_filters( 'mai_taxonomy_post_type', $object, $taxonomy );
 }
 
-function mai_cpt_has_setting( $post_type, $setting ) {
-	$cpt = Mai_CPT( $post_type );
-	if ( $cpt and $cpt->has_setting( $setting ) ) {
-		return true;
-	}
-	return false;
-}
+// function mai_cpt_has_setting( $post_type, $setting ) {
+// 	$cpt = Mai_CPT( $post_type );
+// 	if ( $cpt and $cpt->has_setting( $setting ) ) {
+// 		return true;
+// 	}
+// 	return false;
+// }
 
 /**
  * Check if banner area is enabled.
@@ -400,6 +408,8 @@ function mai_is_flex_loop() {
 }
 
 /**
+ * TODO: THIS SHOULD BE IN 	Mai_Setting CLASS NOW. DO WE EVEN NEED IT ANYMORE?!?!
+ *
  * Helper function to get the column count, with Woo fallback and filter.
  *
  * @return  int  The number of columns
