@@ -1351,8 +1351,9 @@ final class Mai_Shortcodes {
 			// Align text
 			if ( ! empty( $atts['align_text'] ) ) {
 
-				// Column.
-				if ( ! empty( array_intersect( array( 'top', 'middle', 'bottom' ), $atts['align_text'] ) ) ) {
+				// Column. Save as variable first cause php 5.4 broke, and not sure I care to support that but WTH.
+				$vertical_align = array_intersect( array( 'top', 'middle', 'bottom' ), $atts['align_text'] );
+				if ( ! empty( $vertical_align ) ) {
 					$classes .= ' column';
 				}
 
@@ -1716,6 +1717,9 @@ final class Mai_Shortcodes {
 						$entry_content .= ob_get_clean();
 					}
 
+					// Add filter to the entry content, before more link.
+					$entry_content = apply_filters( 'mai_flex_entry_content', $entry_content, $atts );
+
 					// More link
 					if ( $atts['link'] && in_array( 'more_link', $atts['show'] ) ) {
 						$entry_content .= mai_get_read_more_link( $post, $atts['more_link_text'], 'post' );
@@ -1725,9 +1729,6 @@ final class Mai_Shortcodes {
 					if ( $atts['link'] && in_array( 'add_to_cart', $atts['show'] ) ) {
 						$entry_content .= $this->get_add_to_cart_link( $atts, $url );
 					}
-
-					// Add filter to the entry content
-					$entry_content = apply_filters( 'mai_flex_entry_content', $entry_content, $atts );
 
 					// Add entry content wrap if we have content
 					if ( $entry_content ) {
@@ -1928,13 +1929,13 @@ final class Mai_Shortcodes {
 						$entry_content = wpautop( wp_trim_words( $entry_content, $atts['content_limit'], '&hellip;' ) );
 					}
 
+					// Add filter to the entry content, before more link.
+					$entry_content = apply_filters( 'mai_flex_entry_content', $entry_content, $atts );
+
 					// More link
 					if ( $atts['link'] && in_array( 'more_link', $atts['show'] ) ) {
 						$entry_content .= mai_get_read_more_link( $term, $atts['more_link_text'], 'term' );
 					}
-
-					// Add filter to the entry content
-					$entry_content = apply_filters( 'mai_flex_entry_content', $entry_content, $atts );
 
 					// Add entry content wrap if we have content
 					if ( $entry_content ) {
@@ -1949,14 +1950,15 @@ final class Mai_Shortcodes {
 						$html .= sprintf( '<footer %s>%s</footer>', genesis_attr( 'entry-footer', array(), $atts ), $entry_footer );
 					}
 
+					// Image
+					if ( ( 'bg' == $atts['image_location'] ) && $atts['link'] ) {
+						$html .= mai_get_bg_image_link( $url, $term->name );
+					}
+
 				$html .= $this->get_entry_wrap_close( $atts );
 
 			}
 
-			// Image
-			if ( ( 'bg' == $atts['image_location'] ) && $atts['link'] ) {
-				$html .= mai_get_bg_image_link( $url, $term->name );
-			}
 
 		$html .= $this->get_row_wrap_close( $atts );
 
