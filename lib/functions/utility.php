@@ -139,7 +139,7 @@ function mai_get_archive_setting_by_template( $key, $check_for_archive_setting, 
 
 					// Custom taxonomy archive.
 					else {
-						$post_type = mai_get_archive_post_type();
+						$post_type = mai_get_archive_content_type();
 						if ( $post_type ) {
 							if ( ! $check_for_archive_setting || ( $check_for_archive_setting && $enabled = genesis_get_cpt_option( 'enable_content_archive_settings', $post_type ) ) ) {
 								if ( 'post' === $post_type ) {
@@ -159,7 +159,7 @@ function mai_get_archive_setting_by_template( $key, $check_for_archive_setting, 
 	 * CPT archive.
 	 * This may be called too early to use get_post_type().
 	 */
-	elseif ( is_post_type_archive() && post_type_supports( mai_get_archive_post_type(), 'mai-cpt-settings' ) ) {
+	elseif ( is_post_type_archive() && post_type_supports( mai_get_archive_content_type(), 'mai-cpt-settings' ) ) {
 		if ( ! $check_for_archive_setting || ( $check_for_archive_setting && $enabled = genesis_get_cpt_option( 'enable_content_archive_settings' ) ) ) {
 			$meta = genesis_get_cpt_option( $key );
 		}
@@ -187,7 +187,7 @@ function mai_get_archive_setting_by_template( $key, $check_for_archive_setting, 
 }
 
 function mai_archive_has_setting( $key ) {
-	$post_type = new Mai_Post_Type( mai_get_archive_post_type() );
+	$post_type = new Mai_Post_Type( mai_get_archive_content_type() );
 	return $post_type->has_setting( $key );
 }
 
